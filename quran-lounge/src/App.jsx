@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import Draggable from 'react-draggable';
 import SurahAudioPlayer from './SurahAudioPlayer';
 import './App.css';
 
@@ -11,14 +12,19 @@ import {
   FaEyeSlash
 } from 'react-icons/fa';
 
-import reciterData from './AbdulBasetAbdulSamadRecitation.json';
-import reciterData2 from './yasseraldossari.json';
-const ALL_RECITERS = [reciterData,reciterData2];
+// --- Multiple Reciters ---
+import reciter1 from './AbdulBasetAbdulSamadRecitation.json';
+import reciter2 from './yasseraldossari.json';
 
+// Flatten all reciters into one large array of ayah-level data
+const ALL_AYAH_DATA = [...reciter1, ...reciter2];
+
+// Arabic text
 import transcriptionData from './Uthmani.json';
+// English text
 import translationData from './English.json';
 
-// Helper: pick a random item
+// Helper to pick a random item
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -27,57 +33,51 @@ export default function App() {
   const [currentSurahAyahs, setCurrentSurahAyahs] = useState([]);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(0);
 
-  // Playback
+  // Playback states
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
 
-  // Show/hide the entire text area
+  // Show/hide entire text region
   const [showTranscription, setShowTranscription] = useState(true);
 
-  // Arabic + English lines (set by the child)
+  // Arabic & English lines from the child
   const [currentArabic, setCurrentArabic] = useState('');
   const [currentEnglish, setCurrentEnglish] = useState('');
 
+  // Background
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('/assets/gifs/1.gif');
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  // Text display mode: 'arabic', 'english', or 'both'
+  // "arabic" | "english" | "both"
   const [textMode, setTextMode] = useState('arabic');
 
-  // Draggable player states
-  const playerRef = useRef(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  // Starting position near bottom-left
-  const [playerPos, setPlayerPos] = useState({
-    x: 20,
-    y: window.innerHeight * 0.1
-  });
-
+  // On mount, treat data as "loaded" and pick random surah
   useEffect(() => {
     setDataLoaded(true);
     pickRandomSurah();
   }, []);
 
+  // --- Random Surah Across *All* Reciters ---
   function pickRandomSurah() {
-    const chosenReciter = getRandomItem(ALL_RECITERS);
+    if (!ALL_AYAH_DATA.length) return;
 
-    const surahNumbers = Array.from(
-      new Set(chosenReciter.map((item) => item.surah_number))
+    const allSurahNumbers = Array.from(
+      new Set(ALL_AYAH_DATA.map((a) => a.surah_number))
     );
-    const randomSurah = getRandomItem(surahNumbers);
+    const randomSurahNumber = getRandomItem(allSurahNumbers);
 
-    const filtered = chosenReciter
-      .filter((item) => item.surah_number === randomSurah)
+    const filtered = ALL_AYAH_DATA
+      .filter((item) => item.surah_number === randomSurahNumber)
       .sort((a, b) => a.ayah_number - b.ayah_number);
 
     const withLocalAyahs = filtered.map((item, i) => ({
       ...item,
-      localAyahNumber: i + 1
+      localAyahNumber: i + 1,
     }));
 
     setCurrentSurahAyahs(withLocalAyahs);
     setCurrentAyahIndex(0);
+
     setCurrentArabic('');
     setCurrentEnglish('');
 
@@ -86,10 +86,11 @@ export default function App() {
 
     setIsPlaying(true);
     console.log(
-      `Random Surah #${randomSurah}, total ayahs = ${withLocalAyahs.length}, BG = ${randomBG}`
+      `Random Surah #${randomSurahNumber}, total ayahs=${withLocalAyahs.length}, BG=${randomBG}`
     );
   }
 
+  // Move to next ayah in the current surah
   function handleNextAyah() {
     setCurrentAyahIndex((prev) => {
       const next = prev + 1;
@@ -101,90 +102,37 @@ export default function App() {
     });
   }
 
+  // The skip button => new random surah
   function skipToNextSurah() {
     pickRandomSurah();
   }
 
   const currentAyah = currentSurahAyahs[currentAyahIndex];
 
-  // DRAG: on mouse down
-  function onPlayerMouseDown(e) {
-    // If user clicked volume slider, do NOT drag
-    if (e.target.classList.contains('volume-slider')) {
-      return;
-    }
-    setIsDragging(true);
-    const rect = playerRef.current.getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
-  }
-
-  // DRAG: on mouse move
-  function onMouseMove(e) {
-    if (!isDragging) return;
-
-    const newX = e.clientX - dragOffset.x;
-    const newY = e.clientY - dragOffset.y;
-
-    // CLAMP to keep player on screen
-    // We'll clamp so it never goes off the left or top
-    // and doesn't exceed window width/height minus 50 px margin
-    const margin = 50;
-    const maxX = window.innerWidth - margin;
-    const maxY = window.innerHeight - margin;
-    const clampedX = Math.min(Math.max(newX, 0), maxX);
-    const clampedY = Math.min(Math.max(newY, 0), maxY);
-
-    setPlayerPos({ x: clampedX, y: clampedY });
-  }
-
-  // DRAG: on mouse up
-  function onMouseUp() {
-    setIsDragging(false);
-  }
-
-  useEffect(() => {
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
-    return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
-    };
-  }, [isDragging, dragOffset]);
-
-  // Combine Arabic + English depending on textMode
+  // --------------- TEXT DISPLAY ---------------
   let textContent = null;
-  if (!showTranscription) {
-    textContent = null; // user hid everything
-  } else {
-    if (textMode === 'arabic') {
-      if (currentArabic) {
-        textContent = (
-          <div style={{ fontSize: '2rem', textAlign: 'center' }}>{currentArabic}</div>
-        );
-      }
-    } else if (textMode === 'english') {
-      if (currentEnglish) {
-        // Single large size if only English
-        textContent = (
-          <div style={{ fontSize: '2rem', textAlign: 'center' }}>{currentEnglish}</div>
-        );
-      }
-    } else {
-      // both
-      if (currentArabic || currentEnglish) {
-        // Arabic bigger, English smaller, stacked
-        textContent = (
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
-              {currentArabic}
-            </div>
-            <div style={{ fontSize: '1.3rem' }}>{currentEnglish}</div>
+  if (showTranscription) {
+    if (textMode === 'arabic' && currentArabic) {
+      textContent = (
+        <div style={{ fontSize: '2rem', textAlign: 'center' }}>{currentArabic}</div>
+      );
+    } else if (textMode === 'english' && currentEnglish) {
+      textContent = (
+        <div style={{ fontSize: '2rem', direction: 'ltr', textAlign: 'left' }}>
+          {currentEnglish}
+        </div>
+      );
+    } else if (textMode === 'both' && (currentArabic || currentEnglish)) {
+      textContent = (
+        <div>
+          <div style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '0.5rem' }}>
+            {currentArabic}
           </div>
-        );
-      }
+          <div style={{ fontSize: '1.3rem', direction: 'ltr', textAlign: 'left' }}>
+            {currentEnglish}
+          </div>
+        </div>
+      );
     }
   }
 
@@ -194,100 +142,103 @@ export default function App() {
         <img src={backgroundImageSrc} alt="Background" className="background-gif" />
       </div>
 
-      {/* Transcription in the center */}
       {textContent && <div className="transcription">{textContent}</div>}
 
-      {/* Draggable Player */}
-      <div
-        className="player"
-        ref={playerRef}
-        style={{
-          transform: `translate(${playerPos.x}px, ${playerPos.y}px)`,
-          direction: 'ltr'
-        }}
-        onMouseDown={onPlayerMouseDown}
-      >
-        {dataLoaded && currentAyah ? (
-          <SurahAudioPlayer
-            key={currentAyah.surah_number + '-' + currentAyah.localAyahNumber}
-            ayah={currentAyah}
-            isPlaying={isPlaying}
-            volume={volume}
-            arabicData={transcriptionData}
-            englishData={translationData}
-            setCurrentArabic={setCurrentArabic}
-            setCurrentEnglish={setCurrentEnglish}
-            onAyahEnded={handleNextAyah}
-          />
-        ) : (
-          <div>Loading...</div>
-        )}
+      <Draggable>
+        <div
+          className="player"
+          style={{
+            direction: 'ltr',
+          }}
+        >
+          {/* Drag handle */}
+          <div
+            style={{
+              background: 'rgba(0,0,0,0.4)',
+              padding: '5px',
+              cursor: 'grab',
+              textAlign: 'center',
+              borderRadius: '4px',
+            }}
+          >
+            <strong>Drag Handle</strong>
+          </div>
 
-        <div className="controls" style={{ display: 'flex', justifyContent: 'center' }}>
-          {/* Play/Pause */}
-          <button onClick={() => setIsPlaying((prev) => !prev)}>
-            {isPlaying ? <FaPause /> : <FaPlay />}
-          </button>
-
-          {/* Skip entire surah */}
-          <button onClick={skipToNextSurah}>
-            <FaStepForward />
-          </button>
-
-          {/* Toggle show/hide all text */}
-          <button onClick={() => setShowTranscription((prev) => !prev)}>
-            {showTranscription ? <FaEyeSlash /> : <FaEye />}
-          </button>
-        </div>
-
-        {/* Mode Switch */}
-        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '5px' }}>
-          <label>
-            <input
-              type="radio"
-              name="textMode"
-              value="arabic"
-              checked={textMode === 'arabic'}
-              onChange={() => setTextMode('arabic')}
+          {dataLoaded && currentAyah ? (
+            <SurahAudioPlayer
+              key={currentAyah.surah_number + '-' + currentAyah.localAyahNumber}
+              ayah={currentAyah}
+              isPlaying={isPlaying}
+              volume={volume}
+              arabicData={transcriptionData}
+              englishData={translationData}
+              setCurrentArabic={setCurrentArabic}
+              setCurrentEnglish={setCurrentEnglish}
+              onAyahEnded={handleNextAyah}
             />
-            Arabic
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="textMode"
-              value="english"
-              checked={textMode === 'english'}
-              onChange={() => setTextMode('english')}
-            />
-            English
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="textMode"
-              value="both"
-              checked={textMode === 'both'}
-              onChange={() => setTextMode('both')}
-            />
-            Both
-          </label>
-        </div>
+          ) : (
+            <div>Loading...</div>
+          )}
 
-        {/* Volume */}
-        <div style={{ marginTop: '10px', width: '80%' }}>
-          <FaVolumeUp style={{ marginRight: '0.5rem' }} />
-          <input
-            type="range"
-            className="volume-slider"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={(e) => setVolume(parseFloat(e.target.value))}
-          />
+          <div className="controls" style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
+            <button onClick={() => setIsPlaying((prev) => !prev)}>
+              {isPlaying ? <FaPause /> : <FaPlay />}
+            </button>
+            <button onClick={skipToNextSurah}>
+              <FaStepForward />
+            </button>
+            <button onClick={() => setShowTranscription((prev) => !prev)}>
+              {showTranscription ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
+
+          <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center', gap: '5px' }}>
+            <label>
+              <input
+                type="radio"
+                name="textMode"
+                value="arabic"
+                checked={textMode === 'arabic'}
+                onChange={() => setTextMode('arabic')}
+              />
+              Arabic
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="textMode"
+                value="english"
+                checked={textMode === 'english'}
+                onChange={() => setTextMode('english')}
+              />
+              English
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="textMode"
+                value="both"
+                checked={textMode === 'both'}
+                onChange={() => setTextMode('both')}
+              />
+              Both
+            </label>
+          </div>
+
+          <div style={{ marginTop: '10px', width: '80%', margin: 'auto' }}>
+            <FaVolumeUp style={{ marginRight: '0.5rem' }} />
+            <input
+              type="range"
+              className="volume-slider"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+            />
+          </div>
         </div>
-      </div>
+      </Draggable>
     </div>
   );
 }
