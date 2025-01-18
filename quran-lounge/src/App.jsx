@@ -163,10 +163,28 @@ const SURAH_NAMES = {
   113: 'Al-Falaq',
   114: 'An-Nās'
 };
+
+const backgroundURLs = [
+  'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjR1MmVkOXByYWhydnZhdGdmbzR5NmplaTY3NWJ3dzBsaHdjYjNociZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dU97uV3UyP0ly/giphy.gif',
+  'https://media.giphy.com/media/c2CDTcHLscXaU5s1vK/giphy.gif?cid=790b761186j991l9hqlw55ms4i68spdr38yc5l02oso8o6av&ep=v1_gifs_search&rid=giphy.gif&ct=g',
+  'https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdzIzM3VrN3dvd2g5emNocmJjbWw0MmNpNTFkbHliMTRwcHFvMmVnaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/9Z6n6Nr14rOH51TGnE/giphy.gif','https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExb2lwNjBkM2VwemowYzk0ZmticTNvdHB3d2M2NXJ1OTlkendqMXh6MCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JPyVBbuFZkMhi/giphy.gif','https://media.giphy.com/media/dPTktM4fvh8dO/giphy.gif?cid=790b7611zesvphawaytx7jvg1uhs6rvkjs4ve4c0ldffeait&ep=v1_gifs_search&rid=giphy.gif&ct=g','https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGE4MzZ2Y2pnY2NzOHZhemx6bGZzdGI0aDl1ZmFvYXZ5OWZmM2c5diZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/145uApxDPDN2py/giphy.gif','https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJrNmJrMnBzMGZ3cGh1Y2gwc2FhYjRwbnBsNzF1bjVxZTJ1MGNrbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l0HUhzR00v9RCjTKo/giphy.gif','https://media.giphy.com/media/bQQhvm48KehvDLSwPn/giphy.gif?cid=790b7611pt600vhn7lgmzkofs8f3o9bsck3sx830tvhemqc2&ep=v1_gifs_search&rid=giphy.gif&ct=g','https://media.giphy.com/media/q2DwjOrFktA3r3cd5D/giphy.gif?cid=ecf05e47jebbca7o883sfebng0phwpypztgkb5ymrl6wxyg0&ep=v1_gifs_search&rid=giphy.gif&ct=g',
+  'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExc3I0aWhrM3pjMDlsYnAxZHZ5c3JxeGJ1eG01dTllZmRqZTN2Mzh4eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/z8DrnSOoMQnEMNHwJH/giphy.gif',
+  'https://media.giphy.com/media/KZBTBnJt59SUsvag2d/giphy.gif?cid=ecf05e4749552y4uhqgf5txudzr42wh7ulnhkmp2gqw5xjf3&ep=v1_gifs_related&rid=giphy.gif&ct=g','https://media.giphy.com/media/LKTFkDdiS8KI0/giphy.gif?cid=ecf05e4749552y4uhqgf5txudzr42wh7ulnhkmp2gqw5xjf3&ep=v1_gifs_related&rid=giphy.gif&ct=g','https://media.giphy.com/media/GaDyM2r396naHmmYlI/giphy.gif?cid=ecf05e479c0jr8qmx2gjtjvl1bqmnz71gelho4wumg1jpqpn&ep=v1_gifs_related&rid=giphy.gif&ct=g','https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2l1am54bmtvaXdvaTd2cmhlbnl3cnRza3kxcm01eGNncjR5d3VidyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hnI0Tm6F1szIY/giphy.gif',
+  'https://media.giphy.com/media/Wpy9lrAfHCLp4mIT9L/giphy.gif?cid=ecf05e47er3k8vdojp1c4opt7ewb58naydpciqmixnn7dizv&ep=v1_gifs_related&rid=giphy.gif&ct=g','https://media.giphy.com/media/eJoGJF8lASakPof1h2/giphy.gif?cid=ecf05e47er3k8vdojp1c4opt7ewb58naydpciqmixnn7dizv&ep=v1_gifs_related&rid=giphy.gif&ct=g',
+
+
+];
 // Simple random item picker
 function getRandomItem(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+  // Generate a cryptographically secure random index
+  const randomBuffer = new Uint32Array(1);
+  window.crypto.getRandomValues(randomBuffer);
+
+  // Use the random value to select an item from the array
+  const index = randomBuffer[0] % arr.length; // Modulo ensures it's within bounds
+  return arr[index];
 }
+
 
 export default function App() {
   const [currentSurahAyahs, setCurrentSurahAyahs] = useState([]);
@@ -231,9 +249,13 @@ export default function App() {
     setCurrentArabic('');
     setCurrentEnglish('');
 
-    // Random background
-    const randomBG = `/assets/gifs/${Math.floor(Math.random() * 5) + 1}.gif`;
-    setBackgroundImageSrc(randomBG);
+    // Function to pick either from URLs or assets folder
+    const chooseBackground = () => {
+        return getRandomItem(backgroundURLs);
+    };
+    
+  
+    setBackgroundImageSrc(chooseBackground());
 
     setIsPlaying(true);
     console.log(
