@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import SurahAudioPlayer from './SurahAudioPlayer';
 import './App.css';
 
-// Icons (Font Awesome via react-icons, or whichever you prefer)
-import { FaPlay, FaPause, FaStepForward, FaVolumeUp } from 'react-icons/fa';
+// Icons (from react-icons for example)
+import { FaPlay, FaPause, FaStepForward, FaVolumeUp, FaEye, FaEyeSlash } from 'react-icons/fa';
 
-// Import your single or multiple reciters:
+// Your single or multiple reciters (ayah-based JSON)
 import reciterData from './AbdulBasetAbdulSamadRecitation.json';
-// If you have more reciters, you can add them:
-const ALL_RECITERS = [reciterData /*, reciter2Data, reciter3Data... */];
+// Additional reciters can be placed in the array if you have them
+const ALL_RECITERS = [reciterData];
 
 // Uthmani transcription
 import transcriptionData from './Uthmani.json';
 
-// Helper: pick a random item from an array
+// Helper: pick a random item
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -26,46 +26,47 @@ export default function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
 
-  // Subtitle that shows in the center
+  // Show/hide the transcription text
+  const [showTranscription, setShowTranscription] = useState(true);
+  // The actual text that appears in the center
   const [currentSubtitle, setCurrentSubtitle] = useState('');
 
   // Random background
   const [backgroundImageSrc, setBackgroundImageSrc] = useState('/assets/gifs/1.gif');
 
+  // Mark data as "loaded" if needed
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    // If you needed to fetch, you'd do it here, but we are importing
+    // If you had a real fetch, do it here. We just set loaded = true.
     setDataLoaded(true);
-    // Pick a random surah on mount
     pickRandomSurah();
   }, []);
 
   function pickRandomSurah() {
-    // 1) Pick one reciter
+    // 1) Pick from available reciters
     const chosenReciter = getRandomItem(ALL_RECITERS);
 
-    // 2) Extract unique surah numbers
+    // 2) Unique surah numbers
     const surahNumbers = Array.from(
       new Set(chosenReciter.map((item) => item.surah_number))
     );
 
-    // 3) Pick a random surah
+    // 3) Pick one surah
     const randomSurah = getRandomItem(surahNumbers);
 
-    // 4) Filter all AYAH-level audio for that surah
+    // 4) Filter ayahs for that surah, sorted in ascending order
     const filtered = chosenReciter
       .filter((item) => item.surah_number === randomSurah)
       .sort((a, b) => a.ayah_number - b.ayah_number);
 
-    // 5) Remap the global ayah_number to a local index: i+1
-    //    So if Surah 72 has items with ayah_number=5448,5449..., we now label them 1,2,...
-    const withLocalAyahNumbers = filtered.map((item, i) => ({
+    // 5) Map global ayah_number => local index
+    const withLocalAyahs = filtered.map((item, i) => ({
       ...item,
       localAyahNumber: i + 1,
     }));
 
-    setCurrentSurahAyahs(withLocalAyahNumbers);
+    setCurrentSurahAyahs(withLocalAyahs);
     setCurrentAyahIndex(0);
     setCurrentSubtitle('');
 
@@ -73,51 +74,43 @@ export default function App() {
     const randomBG = `/assets/gifs/${Math.floor(Math.random() * 5) + 1}.gif`;
     setBackgroundImageSrc(randomBG);
 
-    // Start playback automatically
+    // Start playback
     setIsPlaying(true);
 
     console.log(
-      `Random Surah #${randomSurah}, ayahs in surah = ${filtered.length}, BG = ${randomBG}`
+      `Random Surah #${randomSurah}, total ayahs = ${withLocalAyahs.length}, BG = ${randomBG}`
     );
   }
 
-  // Called from SurahAudioPlayer when an ayah ends
+  // Called after an ayah finishes
   function handleNextAyah() {
-    setCurrentAyahIndex((prevIndex) => {
-      const nextIndex = prevIndex + 1;
-      if (nextIndex >= currentSurahAyahs.length) {
-        // Finished the surah, pick a new random surah
+    setCurrentAyahIndex((prev) => {
+      const next = prev + 1;
+      if (next >= currentSurahAyahs.length) {
+        // Surah finished => pick a new random surah
         pickRandomSurah();
         return 0;
       }
-      return nextIndex;
+      return next;
     });
   }
 
-  // The currently playing ayah object
+  // This skip button now triggers an entirely new random surah
+  function skipToNextSurah() {
+    pickRandomSurah();
+  }
+
+  // The ayah object we are currently playing
   const currentAyah = currentSurahAyahs[currentAyahIndex];
-
-  // "Skip" button to go to the next ayah in the same surah
-  function skipAyah() {
-    setCurrentAyahIndex((prevIndex) => {
-      const nextIndex = prevIndex + 1;
-      if (nextIndex >= currentSurahAyahs.length) {
-        pickRandomSurah();
-        return 0;
-      }
-      return nextIndex;
-    });
-  }
 
   return (
     <div className="app" style={{ direction: 'rtl', textAlign: 'right' }}>
-      {/* Background */}
       <div className="background">
         <img src={backgroundImageSrc} alt="Background" className="background-gif" />
       </div>
 
-      {/* Transcription in center */}
-      {currentSubtitle && (
+      {/** Conditionally show transcription in the center */}
+      {showTranscription && currentSubtitle && (
         <div className="transcription">
           <strong style={{ fontFamily: 'Scheherazade New, serif', fontSize: '1.5em' }}>
             {currentSubtitle}
@@ -140,25 +133,24 @@ export default function App() {
           <div>Loading...</div>
         )}
 
-        {/* Controls with icons */}
         <div className="controls">
-          {/* Play/Pause Toggle */}
+          {/* Play/Pause */}
           <button onClick={() => setIsPlaying((prev) => !prev)}>
             {isPlaying ? <FaPause /> : <FaPlay />}
           </button>
 
-          {/* Skip next ayah */}
-          <button onClick={skipAyah}>
+          {/* "Skip" to next surah */}
+          <button onClick={skipToNextSurah}>
             <FaStepForward />
           </button>
 
-          {/* Next random surah */}
-          <button onClick={pickRandomSurah}>
-            Next Surah
+          {/* Toggle transcription eye */}
+          <button onClick={() => setShowTranscription((prev) => !prev)}>
+            {showTranscription ? <FaEyeSlash /> : <FaEye />}
           </button>
         </div>
 
-        {/* Volume slider */}
+        {/* Volume */}
         <div style={{ marginTop: '10px' }}>
           <FaVolumeUp style={{ marginRight: '0.5rem' }} />
           <input
