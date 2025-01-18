@@ -88,6 +88,7 @@ body {
 .volume-slider {
   margin-top: 10px;
   width: 80%;
+  direction: ltr; /* Ensure left-to-right movement */
   cursor: pointer;
 }
 
