@@ -43,17 +43,24 @@ body {
 
 
 .transcription {
+  font-family: 'Scheherazade New', serif;
+  font-size: 3em;
+  margin: 20px;
   position: fixed; /* Independent positioning */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%); /* Center horizontally and vertically */
-  font-size: 2rem;
   color: white;
   text-align: center;
   text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-  white-space: nowrap; /* Prevent line breaks */
+  white-space: normal; /* Allow text to wrap */
+  word-wrap: break-word; /* Break words if needed */
   z-index: 2; /* Above background */
 }
+.english-line {
+  font-size: 0.7em;
+}
+
 
 .background {
   position: fixed; /* Ensure it spans the entire viewport */
