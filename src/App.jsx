@@ -305,8 +305,8 @@ export default function App() {
               gap: '5px',
             }}
           >
-            <label>
-              <input
+            <label  className="no-drag">
+              <input 
                 type="radio"
                 name="textMode"
                 value="arabic"
@@ -315,7 +315,7 @@ export default function App() {
               />
               Arabic
             </label>
-            <label>
+            <label  className="no-drag">
               <input
                 type="radio"
                 name="textMode"
@@ -325,7 +325,7 @@ export default function App() {
               />
               English
             </label>
-            <label>
+            <label  className="no-drag">
               <input
                 type="radio"
                 name="textMode"
@@ -338,7 +338,7 @@ export default function App() {
           </div>
 
           {/* Volume slider */}
-          <div style={{ marginTop: '10px', width: '80%', margin: 'auto' }}>
+          <div  className="no-drag" style={{ marginTop: '10px', width: '80%', margin: 'auto' }}>
             <FaVolumeUp style={{ marginRight: '0.5rem' }} />
             <input
               type="range"
