@@ -121,7 +121,7 @@ export default function App() {
     setBackgroundImageSrc(getRandomItem(backgroundURLs));
 
     // 10) Attempt to play automatically
-    setIsPlaying(true);
+    // setIsPlaying(true);
   }
 
   /**

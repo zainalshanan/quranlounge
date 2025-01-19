@@ -116,7 +116,6 @@ export default function SurahAudioPlayer({
     <audio
       ref={audioRef}
       src={ayah.audio_url}
-      autoPlay
       onTimeUpdate={handleTimeUpdate}
       onEnded={handleEnded}
     />
