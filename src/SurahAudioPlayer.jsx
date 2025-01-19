@@ -9,13 +9,14 @@ export default function SurahAudioPlayer({
   setCurrentArabic,
   setCurrentEnglish,
   onAyahEnded,
-  fadeInDuration = 0.15,  // allow defaults
-  fadeOutDuration = 0.5,
+  fadeInDuration = 0.0,  // defaults if not provided
+  fadeOutDuration = 0.0
 }) {
   const audioRef = useRef(null);
   const [lastActiveSegment, setLastActiveSegment] = useState(null);
   const [baseVolume, setBaseVolume] = useState(volume);
 
+  // Reset on new ayah
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -26,6 +27,7 @@ export default function SurahAudioPlayer({
     setBaseVolume(volume);
   }, [ayah, volume, setCurrentArabic, setCurrentEnglish]);
 
+  // Play/pause logic
   useEffect(() => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -35,6 +37,7 @@ export default function SurahAudioPlayer({
     }
   }, [isPlaying]);
 
+  // Volume changes in real time
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
@@ -42,17 +45,22 @@ export default function SurahAudioPlayer({
     setBaseVolume(volume);
   }, [volume]);
 
+  // Time updates for fade in/out + updating displayed text
   function handleTimeUpdate() {
     if (!audioRef.current) return;
     const player = audioRef.current;
     const dur = player.duration;
 
-    // Fade in at start
-    if (player.currentTime <= fadeInDuration) {
+    if (dur < 4) {
+      // skip fade out
+      player.volume = baseVolume;}
+
+    // Fade in at the start
+    else if (player.currentTime <= fadeInDuration) {
       const fraction = player.currentTime / fadeInDuration;
       player.volume = baseVolume * fraction;
     }
-    // Fade out near end
+    // Fade out near the end
     else if (!isNaN(dur) && dur > 0) {
       const timeLeft = dur - player.currentTime;
       if (timeLeft <= fadeOutDuration && timeLeft > 0) {
@@ -63,7 +71,7 @@ export default function SurahAudioPlayer({
       }
     }
 
-    // Update text from segments
+    // Attempt to map time to a segment => update Arabic/English lines
     let parsedSegments = ayah.segments || [];
     if (typeof parsedSegments === 'string') {
       try {
@@ -72,17 +80,20 @@ export default function SurahAudioPlayer({
         parsedSegments = [];
       }
     }
+
     const currentTimeMs = player.currentTime * 1000;
     const activeSegment = parsedSegments.find((seg) => {
-      const [ , , start, end ] = seg; 
+      const [ , , start, end ] = seg;
       return currentTimeMs >= start && currentTimeMs <= end;
     });
 
     if (activeSegment && activeSegment !== lastActiveSegment) {
       setLastActiveSegment(activeSegment);
       const locationKey = `${ayah.surah_number}:${ayah.localAyahNumber}`;
+
       const foundArabic = arabicData[locationKey]?.text || '';
       let foundEnglish = englishData[locationKey]?.t || '';
+      // Clean up leading punctuation/spaces
       foundEnglish = foundEnglish.replace(/^[,\.\s]+/, '').trim();
 
       setCurrentArabic(foundArabic);
@@ -90,12 +101,15 @@ export default function SurahAudioPlayer({
     }
   }
 
+  // When audio ends, move on
   function handleEnded() {
-    // Reset volume
     if (audioRef.current) {
-      audioRef.current.volume = volume;
+      audioRef.current.volume = volume; // reset volume
     }
-    onAyahEnded();
+    
+    setTimeout(() => {
+      onAyahEnded();
+    }, 0);
   }
 
   return (
