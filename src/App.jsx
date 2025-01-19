@@ -66,7 +66,6 @@ function getRandomItem(arr) {
   return arr[index];
 }
 
-
 export default function App() {
   const [currentSurahAyahs, setCurrentSurahAyahs] = useState([]);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(0);
@@ -87,6 +86,38 @@ export default function App() {
     // Once component loads, pick an initial surah
     setDataLoaded(true);
     pickRandomSurah();
+  }, []);
+
+  // === Add keyboard listener for desktop only ===
+  useEffect(() => {
+    // Quick mobile check; if mobile, do nothing
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    if (isMobile) return;
+
+    const handleKeyDown = (e) => {
+      // If user is typing into an input or textarea, skip
+      if (
+        e.target.tagName === 'INPUT' ||
+        e.target.tagName === 'TEXTAREA' ||
+        e.target.isContentEditable
+      ) {
+        return;
+      }
+
+      // Toggle play/pause with Space
+      if (e.code === 'Space') {
+        e.preventDefault(); // Prevent page scroll
+        setIsPlaying((prev) => !prev);
+      }
+      // Skip to the next surah with ArrowRight
+      else if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        skipToNextSurah();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   /**
