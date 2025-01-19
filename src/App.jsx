@@ -242,7 +242,7 @@ export default function App() {
       {textContent && <div className="transcription">{textContent}</div>}
 
       {/* Draggable container (entire box draggable except volume slider) */}
-      <Draggable cancel=".volume-slider">
+      <Draggable  cancel=".no-drag">
         <div className="player" style={{ direction: 'ltr' }}>
           {/* Drag handle + Surah name */}
           <div
@@ -283,15 +283,15 @@ export default function App() {
             style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}
           >
             {/* Play/Pause */}
-            <button onClick={() => setIsPlaying((prev) => !prev)}>
+            <button  className="no-drag" onClick={() => setIsPlaying((prev) => !prev)}>
               {isPlaying ? <FaPause /> : <FaPlay />}
             </button>
             {/* Skip entire surah */}
-            <button onClick={skipToNextSurah}>
+            <button  className="no-drag" onClick={skipToNextSurah}>
               <FaStepForward />
             </button>
             {/* Hide/Show text */}
-            <button onClick={() => setShowTranscription((prev) => !prev)}>
+            <button  className="no-drag" onClick={() => setShowTranscription((prev) => !prev)}>
               {showTranscription ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
