@@ -54,11 +54,18 @@ const ALL_RECITERS = [reciter5, reciter4, reciter3, reciter2, reciter1];
  * Simple random item picker using crypto for a secure random index.
  */
 function getRandomItem(arr) {
+  // Get a random 32-bit integer
   const randomBuffer = new Uint32Array(1);
   window.crypto.getRandomValues(randomBuffer);
-  const index = randomBuffer[0] % arr.length;
+
+  // Convert to a float in [0, 1)
+  const randomFloat = randomBuffer[0] / (0xFFFFFFFF + 1);
+
+  // Use that float to get a uniform index
+  const index = Math.floor(randomFloat * arr.length);
   return arr[index];
 }
+
 
 export default function App() {
   const [currentSurahAyahs, setCurrentSurahAyahs] = useState([]);
