@@ -50,9 +50,10 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 1s ease-in-out; /* 1s fade */
+  transition: opacity 1s ease-in-out; /* For crossfade */
   opacity: 1;
 }
+
 
 /* We'll toggle a .loading class or something if you want to fade out/in */
 .background-gif.loading {

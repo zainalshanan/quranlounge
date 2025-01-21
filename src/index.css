@@ -5,6 +5,14 @@
   background-color: #242424;
 }
 
+@font-face {
+  font-family: 'QPC-Hafs';
+  src: url('/fonts/QPC.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 body {
   margin: 0;
   width: 100%;
@@ -43,7 +51,7 @@ body {
 
 
 .transcription {
-  font-family: 'KFGQPC Uthmanic Script', Amiri Quran;
+  font-family: 'QPC-Hafs, KFGQPC Uthmanic Script', Amiri Quran;
   font-size: 3em;
   margin: 20px;
   position: fixed; /* Independent positioning */
@@ -73,11 +81,6 @@ body {
   filter: brightness(60%)
 }
 
-.background-gif {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Ensure the GIF covers the entire background */
-}
 
 .controls button {
   background-color: rgb(131, 131, 131);
