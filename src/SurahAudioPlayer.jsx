@@ -19,16 +19,17 @@ export default function SurahAudioPlayer({
   // Reset ONLY when ayah changes
   useEffect(() => {
     if (!audioRef.current) return;
-    // Each time we load a new ayah, reset playback to 0
+    // Only reset when ayah changes
     audioRef.current.currentTime = 0;
-    audioRef.current.volume = volume; // Start at the current volume
+    audioRef.current.volume = volume; // set volume once
     setLastActiveSegment(null);
     setCurrentArabic('');
     setCurrentEnglish('');
     setBaseVolume(volume);
-  }, [ayah, setCurrentArabic, setCurrentEnglish, volume]);
-
-  // Adjust volume in real-time, WITHOUT resetting currentTime
+  }, [ayah, setCurrentArabic, setCurrentEnglish]); 
+  // ^ remove "volume" from here
+  
+  // separate effect just for changing volume in real-time
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
