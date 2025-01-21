@@ -3,8 +3,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  Suspense,
-  useRef
+  Suspense
 } from 'react';
 import Draggable from 'react-draggable';
 import { FaPlay, FaPause, FaStepForward, FaStop, FaVolumeUp, FaEye, FaEyeSlash } from 'react-icons/fa';
@@ -25,7 +24,7 @@ import backgroundURLs from './Backgrounds';
 
 // Your JSON data (could also lazy-load these if they are large)
 import reciter1Data from './AbdulBasetAbdulSamad.json';
-import reciter2Data from './YasserAlDossari.json';
+// import reciter2Data from './YasserAlDossari.json';
 import reciter3Data from './HaniArRifai.json';
 import reciter4Data from './MohamedSiddiqAlMinshawi.json';
 import reciter5Data from './Mohamedal-Tablawi.json';
@@ -43,12 +42,12 @@ function parseReciterData(json, reciterName) {
 }
 
 const reciter1 = parseReciterData(reciter1Data, 'AbdulBasetAbdulSamad');
-const reciter2 = parseReciterData(reciter2Data, 'YasserAlDossari');
+// const reciter2 = parseReciterData(reciter2Data, 'YasserAlDossari');
 const reciter3 = parseReciterData(reciter3Data, 'HaniArRifai');
 const reciter4 = parseReciterData(reciter4Data, 'MohamedSiddiqAlMinshawi');
 const reciter5 = parseReciterData(reciter5Data, 'Mohamedal-Tablawi');
 
-const ALL_RECITERS = [reciter5, reciter4, reciter3, reciter2, reciter1];
+const ALL_RECITERS = [reciter5, reciter4, reciter3, reciter1];
 
 /**
  * Secure random item from an array
