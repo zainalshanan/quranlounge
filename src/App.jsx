@@ -6,7 +6,7 @@ import React, {
   Suspense
 } from 'react';
 import Draggable from 'react-draggable';
-import { FaPlay, FaPause, FaStepForward, FaStop, FaVolumeUp, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaPlay, FaPause, FaStepForward, FaStop, FaVolumeUp, FaUsers } from 'react-icons/fa';
 import './App.css';
 
 // Lazy import your audio player
@@ -22,9 +22,8 @@ import SURAH_NAMES from './SurahList';
 // Background URLs
 import backgroundURLs from './Backgrounds';
 
-// Your JSON data (could also lazy-load these if they are large)
+// Your JSON data
 import reciter1Data from './AbdulBasetAbdulSamad.json';
-// import reciter2Data from './YasserAlDossari.json';
 import reciter3Data from './HaniArRifai.json';
 import reciter4Data from './MohamedSiddiqAlMinshawi.json';
 import reciter5Data from './Mohamedal-Tablawi.json';
@@ -41,17 +40,13 @@ function parseReciterData(json, reciterName) {
   return dataArray;
 }
 
-const reciter1 = parseReciterData(reciter1Data, 'AbdulBasetAbdulSamad');
-// const reciter2 = parseReciterData(reciter2Data, 'YasserAlDossari');
-const reciter3 = parseReciterData(reciter3Data, 'HaniArRifai');
-const reciter4 = parseReciterData(reciter4Data, 'MohamedSiddiqAlMinshawi');
+const reciter1 = parseReciterData(reciter1Data, 'Abdul Baset Abdul Samad');
+const reciter3 = parseReciterData(reciter3Data, 'Hani Ar Rifai');
+const reciter4 = parseReciterData(reciter4Data, 'Mohamed Siddiq Al Minshawi');
 const reciter5 = parseReciterData(reciter5Data, 'Mohamedal-Tablawi');
 
 const ALL_RECITERS = [reciter5, reciter4, reciter3, reciter1];
 
-/**
- * Secure random item from an array
- */
 function getRandomItem(arr) {
   const randomBuffer = new Uint32Array(1);
   window.crypto.getRandomValues(randomBuffer);
@@ -60,28 +55,15 @@ function getRandomItem(arr) {
   return arr[index];
 }
 
-/**
- * Return a random surah object:
- *  {
- *    surahAyahs: [ ... full list of ayahs ... ],
- *    surahName: '...'
- *    fadeDurations: { fadeIn, fadeOut }
- *  }
- */
-function getRandomSurah() {
-  // 1) Choose a random reciter array
-  const chosenReciter = getRandomItem(ALL_RECITERS);
+function getRandomSurah(allowedReciters) {
+  const validReciters = allowedReciters.length > 0 ? allowedReciters : ALL_RECITERS;
+  const chosenReciter = getRandomItem(validReciters);
   const reciterName = chosenReciter.reciterName || 'default';
 
-  // 2) Fade config
   const fadeConfig = RECITER_FADE_CONFIG[reciterName] || RECITER_FADE_CONFIG.default;
-
-  // 3) Unique surah numbers for that reciter
   const surahNumbers = Array.from(new Set(chosenReciter.map((a) => a.surah_number)));
-  // 4) Pick random surah
   const randomSurah = getRandomItem(surahNumbers);
 
-  // 5) Filter the ayahs for that surah + sort
   const filtered = chosenReciter
     .filter((item) => item.surah_number === randomSurah)
     .sort((a, b) => a.ayah_number - b.ayah_number);
@@ -103,55 +85,63 @@ function getRandomSurah() {
 export default function App() {
   // ----- State -----
   const [currentSurah, setCurrentSurah] = useState(null);
-  const [nextSurah, setNextSurah] = useState(null); // pre-fetch the next surah
+  const [nextSurah, setNextSurah] = useState(null);
   const [currentAyahIndex, setCurrentAyahIndex] = useState(0);
-
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
-
-  // For text display
   const [showTranscription, setShowTranscription] = useState(true);
   const [textMode, setTextMode] = useState('arabic');
   const [currentArabic, setCurrentArabic] = useState('');
   const [currentEnglish, setCurrentEnglish] = useState('');
-
-  // For controlling a short splash screen
   const [showSplash, setShowSplash] = useState(true);
+  const [selectedReciters, setSelectedReciters] = useState(
+    ALL_RECITERS.map(r => r.reciterName)
+  );
+  const [showReciterSelection, setShowReciterSelection] = useState(false);
 
-  // Preload all background images to avoid lag on switching
-  // (If you have a large list, consider preloading only some or lazy-load them)
   const { loadedImages, isLoading: imagesLoading } = usePreloadImages(backgroundURLs);
-
-  // Manage background: store an index to the preloaded images
   const [bgIndex, setBgIndex] = useState(0);
 
-  // If you want a fade-in/fade-out or immediate switch, you can do it in CSS
-  // For immediate switch, just swap the src as we do below.
+  // Reciter selection logic
+  const toggleReciter = useCallback((reciterName) => {
+    setSelectedReciters(prev => {
+      const newSelected = prev.includes(reciterName) 
+        ? prev.filter(r => r !== reciterName)
+        : [...prev, reciterName];
+      if (newSelected.length === 0) {
+        alert('Please select at least one reciter.');
+        return prev;
+      }
+      return newSelected;
+    });
+  }, []);
 
-  // On mount, load initial surahs
+  // Initial load
   useEffect(() => {
-    // Set up a fallback to remove splash after ~3 seconds if not ready
     const splashTimeout = setTimeout(() => {
       setShowSplash(false);
     }, 3000);
 
-    // Load 1st Surah and pre-fetch next Surah
-    const first = getRandomSurah();
+    const allowedReciters = ALL_RECITERS.filter(r => selectedReciters.includes(r.reciterName));
+    const first = getRandomSurah(allowedReciters);
     setCurrentSurah(first);
-    setNextSurah(getRandomSurah());
+    setNextSurah(getRandomSurah(allowedReciters));
 
     return () => clearTimeout(splashTimeout);
   }, []);
 
-  // If images + surah are loaded, remove the splash
   useEffect(() => {
     if (!imagesLoading && currentSurah) {
-      // All images loaded + we have surah data = safe to hide splash
       setShowSplash(false);
     }
   }, [imagesLoading, currentSurah]);
 
-  // Derive fadeDurations + surah name
+  // Update next surah when reciters change
+  useEffect(() => {
+    const allowedReciters = ALL_RECITERS.filter(r => selectedReciters.includes(r.reciterName));
+    setNextSurah(getRandomSurah(allowedReciters));
+  }, [selectedReciters]);
+
   const fadeDurations = currentSurah?.fadeDurations || { fadeIn: 0.15, fadeOut: 0.5 };
   const currentSurahName = currentSurah?.surahName || '';
 
@@ -165,27 +155,25 @@ export default function App() {
     ? currentSurahAyahs[nextAyahIndex]
     : null;
 
-  // Helper to pick next surah from the queue (or random if none)
   const loadNextSurahFromQueue = useCallback(() => {
-    setCurrentSurah(nextSurah || getRandomSurah());
-    setNextSurah(getRandomSurah()); // re-populate the "queue"
+    const allowedReciters = ALL_RECITERS.filter(r => selectedReciters.includes(r.reciterName));
+    setCurrentSurah(nextSurah || getRandomSurah(allowedReciters));
+    setNextSurah(getRandomSurah(allowedReciters));
     setCurrentAyahIndex(0);
-    // Also pick a random background index
     setBgIndex((prev) => {
-      // to avoid the same background consecutively, you can do this check:
       let newIndex = Math.floor(Math.random() * loadedImages.length);
       if (newIndex === prev && loadedImages.length > 1) {
         newIndex = (newIndex + 1) % loadedImages.length;
       }
       return newIndex;
     });
-  }, [nextSurah, loadedImages.length]);
+  }, [nextSurah, loadedImages.length, selectedReciters]);
 
   // Move to next ayah
   function handleNextAyah() {
     setCurrentAyahIndex((prev) => {
       const nextIndex = prev + 1;
-      if (nextIndex >= currentSurahAyahs.length) {
+      if (nextIndex >= currentSurah.surahAyahs.length) {
         // Surah done => load the next surah from queue
         loadNextSurahFromQueue();
         return 0;
@@ -278,15 +266,15 @@ export default function App() {
               width: '100%'
             }}
           >
-            <strong>{currentSurahName}</strong>
+            <strong>{currentSurah?.surahName}</strong>
           </div>
 
           {/** Audio player + fallback while lazy-loading */}
-          {currentAyah ? (
+          {currentSurah?.surahAyahs[currentAyahIndex] ? (
             <Suspense fallback={<div>Loading audio...</div>}>
               <SurahAudioPlayerLazy
-                key={`${currentAyah.surah_number}-${currentAyah.localAyahNumber}`}
-                ayah={currentAyah}
+                key={`${currentSurah.surahAyahs[currentAyahIndex].surah_number}-${currentSurah.surahAyahs[currentAyahIndex].localAyahNumber}`}
+                ayah={currentSurah.surahAyahs[currentAyahIndex]}
                 isPlaying={isPlaying}
                 volume={volume}
                 arabicData={transcriptionData}
@@ -302,34 +290,39 @@ export default function App() {
             <div>Loading...</div>
           )}
 
-          {/** Controls */}
-          <div
-            className="controls"
-            style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}
-          >
-            {/** Play/Pause */}
+          <div className="controls">
             <button className="no-drag" onClick={() => setIsPlaying((prev) => !prev)}>
               {isPlaying ? <FaPause /> : <FaPlay />}
             </button>
-
-            {/** Stop (reset to start) */}
             <button className="no-drag" onClick={stopPlayback}>
               <FaStop />
             </button>
-
-            {/** Skip surah */}
             <button className="no-drag" onClick={skipToNextSurah}>
               <FaStepForward />
             </button>
-
-            {/** Hide/Show text */}
-            <button
-              className="no-drag"
-              onClick={() => setShowTranscription((prev) => !prev)}
+            <button 
+              className="no-drag" 
+              onClick={() => setShowReciterSelection(prev => !prev)}
             >
-              {showTranscription ? <FaEyeSlash /> : <FaEye />}
+              <FaUsers />
             </button>
           </div>
+
+          {showReciterSelection && (
+            <div className="reciter-selection-panel">
+              <h4>Select Reciters</h4>
+              {ALL_RECITERS.map((reciter) => (
+                <label key={reciter.reciterName} className="no-drag">
+                  <input
+                    type="checkbox"
+                    checked={selectedReciters.includes(reciter.reciterName)}
+                    onChange={() => toggleReciter(reciter.reciterName)}
+                  />
+                  {reciter.reciterName}
+                </label>
+              ))}
+            </div>
+          )}
 
           {/** Radio group for textMode */}
           <div
@@ -389,9 +382,9 @@ export default function App() {
       </Draggable>
 
       {/** Preload the next ayah audio to reduce gap */}
-      {nextAyah && (
+      {nextSurah?.surahAyahs[0] && (
         <audio
-          src={nextAyah.audio_url}
+          src={nextSurah.surahAyahs[0].audio_url}
           preload="auto"
           style={{ display: 'none' }}
         />
