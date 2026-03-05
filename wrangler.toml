@@ -1,0 +1,7 @@
+name = "quranlounge"
+compatibility_date = "2024-01-01"
+
+# KV Namespace binding for token and data caching
+[[kv_namespaces]]
+binding = "QURAN_CACHE"
+id = "d601ae5713af43deab1dae4885cbcdc3"
