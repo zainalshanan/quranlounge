@@ -12,8 +12,6 @@ export default function DisplayPanel() {
   const setHighlightWordBg = usePlayerStore(s => s.setHighlightWordBg);
   const showTextBackdrop = usePlayerStore(s => s.showTextBackdrop);
   const setShowTextBackdrop = usePlayerStore(s => s.setShowTextBackdrop);
-  const verseAreaScale = usePlayerStore(s => s.verseAreaScale);
-  const setVerseAreaScale = usePlayerStore(s => s.setVerseAreaScale);
   const reciterId = usePlayerStore(s => s.reciterId);
   const isQUL = typeof reciterId === 'string' && reciterId.startsWith('local:');
 
