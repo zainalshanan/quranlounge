@@ -20,6 +20,7 @@ export default function AmbientMixerPanel() {
           return (
             <div key={track.id} className={`mixer-track ${isActive ? 'active' : ''}`}>
               <button
+                type="button"
                 className="mixer-toggle"
                 onClick={() => toggleAmbientTrack(track.id)}
               >

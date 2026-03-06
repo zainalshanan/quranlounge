@@ -49,7 +49,7 @@ export default function QuranPanel() {
           onChange={e => setSearchQuery(e.target.value)}
         />
         {searchQuery && (
-          <button className="search-clear" onClick={() => setSearchQuery('')}>
+          <button type="button" className="search-clear" onClick={() => setSearchQuery('')}>
             <X size={12} />
           </button>
         )}
@@ -63,6 +63,7 @@ export default function QuranPanel() {
           filteredChapters.map(c => (
             <button
               key={c.id}
+              type="button"
               className={`surah-item ${c.id === currentChapterId ? 'active' : ''}`}
               onClick={() => handleSurahClick(c.id)}
             >
@@ -87,7 +88,7 @@ export default function QuranPanel() {
           ))}
         </select>
 
-        <button className="inline-link" onClick={() => setShowReciterMgmt(!showReciterMgmt)}>
+        <button type="button" className="inline-link" onClick={() => setShowReciterMgmt(!showReciterMgmt)}>
           {showReciterMgmt ? 'Hide' : 'Manage reciters...'}
         </button>
       </div>
@@ -103,6 +104,7 @@ export default function QuranPanel() {
               return (
                 <button
                   key={r.id}
+                  type="button"
                   className={`reciter-chip ${isExcluded ? 'excluded' : ''}`}
                   onClick={() => toggleExcludedReciter(r.id)}
                 >
@@ -119,11 +121,11 @@ export default function QuranPanel() {
       <div className="control-row">
         <label>Loop</label>
         <div className="segmented-control">
-          <button className={loopMode === 'none' ? 'active' : ''} onClick={() => setLoopMode('none')}>Off</button>
-          <button className={loopMode === 'surah' ? 'active' : ''} onClick={() => setLoopMode('surah')}>
+          <button type="button" className={loopMode === 'none' ? 'active' : ''} onClick={() => setLoopMode('none')}>Off</button>
+          <button type="button" className={loopMode === 'surah' ? 'active' : ''} onClick={() => setLoopMode('surah')}>
             <Repeat size={12} /> Surah
           </button>
-          <button className={loopMode === 'verse' ? 'active' : ''} onClick={() => setLoopMode('verse')}>
+          <button type="button" className={loopMode === 'verse' ? 'active' : ''} onClick={() => setLoopMode('verse')}>
             <Repeat1 size={12} /> Verse
           </button>
         </div>

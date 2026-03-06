@@ -12,6 +12,7 @@ export default function PresetsPanel() {
         {PRESETS.map(preset => (
           <button
             key={preset.id}
+            type="button"
             className="preset-card"
             onClick={() => applyPreset(preset)}
           >
