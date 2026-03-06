@@ -8,35 +8,8 @@ export const quranClient = new QuranClient({
   contentBaseUrl: "/api-proxy"
 });
 
-const fetcher = quranClient.fetcher;
-fetcher.getAccessToken = async () => "proxied";
-
-fetcher.fetch = async function(url, params) {
-  const fullUrl = this.makeUrl(url, { ...this.config.defaults, ...params });
-  
-  const res = await fetch(fullUrl, {
-    headers: { "Accept": "application/json" }
-  });
-
-  if (!res.ok) throw new Error(`Proxy Error: ${res.status}`);
-  
-  const json = await res.json();
-  return camelizeKeys(json);
-};
-
-function camelizeKeys(obj) {
-  if (Array.isArray(obj)) return obj.map(v => camelizeKeys(v));
-  if (obj != null && typeof obj === 'object') {
-    return Object.keys(obj).reduce((result, key) => {
-      const camelKey = key.replace(/([-_][a-z])/g, group =>
-        group.toUpperCase().replace('-', '').replace('_', '')
-      );
-      result[camelKey] = camelizeKeys(obj[key]);
-      return result;
-    }, {});
-  }
-  return obj;
-}
+// We only need to tell the client we are "authenticated" via the proxy
+quranClient.fetcher.getAccessToken = async () => "proxied";
 
 /**
  * Optimized API Wrappers
@@ -106,13 +79,9 @@ export async function getChapterAudio(chapterId, reciterId = "qcom:7") {
 
     const files = response.audioFiles || [];
 
-    // Normalize segments to: [wordFrom, wordTo, startTime, endTime]
-    // Quran.com provides: [wordIndex, ?, startTime, endTime]
     return files.map(file => {
       if (file.segments) {
         file.segments = file.segments.map(s => {
-          // If segment has 4 elements, it's [wordIdx, something, start, end]
-          // If 3 elements, it's [wordIdx, start, end]
           if (s.length === 4) {
             return [s[0], s[0], s[2], s[3]];
           } else {
