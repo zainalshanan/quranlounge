@@ -6,7 +6,7 @@ import { useAudioPlayer } from './hooks/useAudioPlayer';
 import './backgrounds.css';
 import Clock from './components/Clock';
 import VerseDisplay from './components/VerseDisplay';
-import { Eye } from 'lucide-react';
+import { Eye, Play } from 'lucide-react';
 
 // ─── Lazy Loaded Components ───
 const Sidebar = lazy(() => import('./components/Sidebar'));
@@ -34,7 +34,9 @@ export default function Home() {
     toggleFullscreen,
     floatingPomodoro,
     floatingTodo,
-    performanceMode
+    performanceMode,
+    isStarted,
+    setIsStarted
   } = usePlayerStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
     reciterId: s.reciterId,
@@ -53,11 +55,14 @@ export default function Home() {
     toggleFullscreen: s.toggleFullscreen,
     floatingPomodoro: s.floatingPomodoro,
     floatingTodo: s.floatingTodo,
-    performanceMode: s.performanceMode
+    performanceMode: s.performanceMode,
+    isStarted: s.isStarted,
+    setIsStarted: s.setIsStarted
   })));
 
   const [loading, setLoading] = useState(true);
 
+  // Initial Data Fetch
   useEffect(() => {
     async function init() {
       const [chaps, recs] = await Promise.all([getChapters(), getReciters()]);
@@ -69,7 +74,8 @@ export default function Home() {
     init();
   }, []);
 
-  useAudioPlayer();
+  // Only run audio hook once the user clicks "Start"
+  useAudioPlayer(isStarted);
 
   useEffect(() => {
     if (activeTheme?.colors) {
@@ -81,6 +87,7 @@ export default function Home() {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (!isStarted) return;
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
       switch (e.code) {
         case 'Space': e.preventDefault(); usePlayerStore.getState().setIsPlaying(!usePlayerStore.getState().isPlaying); break;
@@ -94,15 +101,29 @@ export default function Home() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zenMode]);
+  }, [zenMode, isStarted]);
 
-  if (loading) {
+  // ─── Welcome Screen (User Gesture Required) ───
+  if (!isStarted) {
     return (
-      <div className="app loading-screen">
+      <div className="app loading-screen welcome-screen">
         <div className="loading-content">
-          <div className="loading-spinner" />
-          <h2>Preparing your Lounge...</h2>
-          <p>Loading Quran data</p>
+          <div className="welcome-logo">☪</div>
+          <h2>Quran Lounge</h2>
+          <p>{loading ? 'Loading Quran data...' : 'Ready to begin your session'}</p>
+          
+          {!loading && (
+            <button 
+              className="start-btn" 
+              onClick={() => setIsStarted(true)}
+              autoFocus
+            >
+              <Play size={20} fill="currentColor" />
+              Start Lounge
+            </button>
+          )}
+          
+          {loading && <div className="loading-spinner" style={{ marginTop: '20px' }} />}
         </div>
       </div>
     );

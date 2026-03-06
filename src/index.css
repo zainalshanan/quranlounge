@@ -441,6 +441,52 @@ body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ─── Welcome Screen ─── */
+.welcome-screen {
+  background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+}
+
+.welcome-logo {
+  font-size: 4rem;
+  color: var(--theme-accent);
+  margin-bottom: 1rem;
+  text-shadow: 0 0 30px var(--theme-accent-glow);
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+.start-btn {
+  margin-top: 2rem;
+  padding: 14px 32px;
+  background: var(--theme-accent);
+  border: none;
+  border-radius: 100px;
+  color: #000;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 30px var(--theme-accent-glow);
+}
+
+.start-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 40px var(--theme-accent-glow);
+  background: #fff;
+}
+
+.start-btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
 
 
 /* ─── Policy Pages ─── */

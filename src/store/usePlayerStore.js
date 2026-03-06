@@ -102,6 +102,9 @@ const createUISlice = (set, get) => ({
   activeSidebarPanel: 'presets',
   setActiveSidebarPanel: (panel) => set({ activeSidebarPanel: panel, sidebarOpen: true }),
 
+  isStarted: false,
+  setIsStarted: (val) => set({ isStarted: val }),
+
   zenMode: false,
   setZenMode: (val) => set({ zenMode: val }),
   toggleZenMode: () => set((s) => ({ zenMode: !s.zenMode })),

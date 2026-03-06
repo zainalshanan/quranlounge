@@ -1,20 +1,15 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 import { usePlayerStore, AMBIENT_TRACKS } from '../store/usePlayerStore';
 
 /**
- * Enhanced Audio Hook — Throttled & Optimized v3
- * 
- * Performance improvements:
- * - Replaced 60fps requestAnimationFrame with a throttled 50ms interval for word syncing.
- * - Optimized state checks to prevent unnecessary store updates.
- * - Better lifecycle management for Howler instances.
+ * Enhanced Audio Hook — Throttled, Optimized & Lazy v4
  */
 
 const SYNC_INTERVAL_MS = 50; 
 const SYNC_OFFSET_MS = 100;
 
-export function useAudioPlayer() {
+export function useAudioPlayer(isStarted) {
   const recitationHowlRef = useRef(null);
   const ambientHowlsRef = useRef({});
   const syncIntervalRef = useRef(null);
@@ -25,7 +20,7 @@ export function useAudioPlayer() {
   const isTransitioningRef = useRef(false);
   const consecutiveErrorsRef = useRef(0);
 
-  // Selector-based subscription (slices)
+  // Selector-based subscription
   const isPlaying = usePlayerStore(s => s.isPlaying);
   const audioFiles = usePlayerStore(s => s.audioFiles);
   const currentVerseIndex = usePlayerStore(s => s.currentVerseIndex);
@@ -37,6 +32,16 @@ export function useAudioPlayer() {
 
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { currentVerseIndexRef.current = currentVerseIndex; }, [currentVerseIndex]);
+
+  // Helper: destroy all audio
+  const destroyAll = useCallback(() => {
+    if (recitationHowlRef.current) {
+      recitationHowlRef.current.unload();
+      recitationHowlRef.current = null;
+    }
+    Object.values(ambientHowlsRef.current).forEach(h => h.unload());
+    ambientHowlsRef.current = {};
+  }, []);
 
   const destroyRecitation = useCallback(() => {
     if (recitationHowlRef.current) {
@@ -54,14 +59,15 @@ export function useAudioPlayer() {
     return () => { usePlayerStore.setState({ _requestAudioDestroy: null }); };
   }, [destroyRecitation]);
 
-  // --- 1. Ambient Audio ---
+  // --- 1. Ambient Audio (Only if started) ---
   useEffect(() => {
+    if (!isStarted) return;
+
     const currentIds = Object.keys(activeAmbientTracks);
     const ambientRefs = ambientHowlsRef.current;
 
     Object.keys(ambientRefs).forEach(id => {
       if (!currentIds.includes(id)) {
-        ambientRefs[id].stop();
         ambientRefs[id].unload();
         delete ambientRefs[id];
       }
@@ -79,24 +85,19 @@ export function useAudioPlayer() {
           src: [trackDef.url],
           loop: true,
           volume: vol,
-          html5: true,
+          html5: true, // Keep HTML5 for long ambient tracks to save memory
           onloaderror: () => { howl.unload(); delete ambientRefs[trackId]; },
         });
         ambientRefs[trackId] = howl;
         howl.play();
       }
     });
-  }, [activeAmbientTracks, masterVolume]);
+  }, [activeAmbientTracks, masterVolume, isStarted]);
 
+  // --- 2. Recitation Audio (Only if started) ---
   useEffect(() => {
-    return () => {
-      Object.values(ambientHowlsRef.current).forEach(h => { h.stop(); h.unload(); });
-      ambientHowlsRef.current = {};
-    };
-  }, []);
+    if (!isStarted) return;
 
-  // --- 2. Recitation Audio ---
-  useEffect(() => {
     const currentAudioFile = audioFiles[currentVerseIndex];
     if (!currentAudioFile?.url) return;
 
@@ -134,6 +135,7 @@ export function useAudioPlayer() {
       const howl = new Howl({
         src: [url],
         volume: mv * rv,
+        html5: false, // Use Web Audio for recitation to ensure better syncing and pool management
         onload: () => {
           if (generationRef.current !== thisGeneration) { howl.unload(); return; }
           consecutiveErrorsRef.current = 0;
@@ -169,9 +171,11 @@ export function useAudioPlayer() {
 
     recitationHowlRef.current = createHowl(finalUrl);
     return () => destroyRecitation();
-  }, [currentVerseIndex, audioFiles, destroyRecitation]);
+  }, [currentVerseIndex, audioFiles, destroyRecitation, isStarted]);
 
+  // Sync play/pause
   useEffect(() => {
+    if (!isStarted) return;
     const howl = recitationHowlRef.current;
     if (!howl) return;
     if (isPlaying) {
@@ -179,19 +183,21 @@ export function useAudioPlayer() {
     } else {
       if (howl.playing()) howl.pause();
     }
-  }, [isPlaying]);
+  }, [isPlaying, isStarted]);
 
+  // Handle global volume
   useEffect(() => {
     if (recitationHowlRef.current) {
       recitationHowlRef.current.volume(masterVolume * recitationVolume);
     }
   }, [masterVolume, recitationVolume]);
 
-  // --- 3. Optimized Sync Loop (Interval-based) ---
+  // --- 3. Sync Loop ---
   useEffect(() => {
     if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
 
     syncIntervalRef.current = setInterval(() => {
+      if (!isStarted) return;
       const state = usePlayerStore.getState();
       const howl = recitationHowlRef.current;
       
@@ -213,12 +219,8 @@ export function useAudioPlayer() {
             if (foundSeg) {
               const currentVerse = state.verses[currentVerseIndexRef.current];
               const targetWord = currentVerse?.words?.[foundSeg[0]];
-              
-              if (targetWord) {
-                // Efficiency: Only update store if the word actually changed
-                if (state.activeWordIds[0] !== targetWord.id) {
-                  usePlayerStore.setState({ activeWordIds: [targetWord.id] });
-                }
+              if (targetWord && state.activeWordIds[0] !== targetWord.id) {
+                usePlayerStore.setState({ activeWordIds: [targetWord.id] });
               }
             } else if (state.activeWordIds.length > 0) {
               usePlayerStore.setState({ activeWordIds: [] });
@@ -228,22 +230,11 @@ export function useAudioPlayer() {
       }
     }, SYNC_INTERVAL_MS);
 
-    return () => {
-      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
-    };
-  }, []);
+    return () => clearInterval(syncIntervalRef.current);
+  }, [isStarted]);
 
-  // --- 4. Sleep Timer ---
+  // --- 4. Cleanup & Global State ---
   useEffect(() => {
-    if (sleepTimerRef.current) clearInterval(sleepTimerRef.current);
-    if (sleepTimerEnd && isPlaying) {
-      sleepTimerRef.current = setInterval(() => {
-        if (Date.now() >= sleepTimerEnd) {
-          usePlayerStore.getState().setIsPlaying(false);
-          usePlayerStore.getState().clearSleepTimer();
-        }
-      }, 1000);
-    }
-    return () => { if (sleepTimerRef.current) clearInterval(sleepTimerRef.current); };
-  }, [sleepTimerEnd, isPlaying]);
+    return () => destroyAll();
+  }, [destroyAll]);
 }
