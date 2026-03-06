@@ -1,7 +1,10 @@
 name = "quranlounge"
-pages_build_output_dir = "dist"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
+main = "functions/[[path]].js"
+
+[assets]
+directory = "./dist"
 
 [vars]
 NPM_FLAGS = "--no-package-lock"
