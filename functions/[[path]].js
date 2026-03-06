@@ -33,7 +33,6 @@ export default {
         }
 
         const audioResponse = new Response(res.body, res);
-        // Audio is highly cacheable
         audioResponse.headers.set("Cache-Control", "public, max-age=31536000, immutable");
         audioResponse.headers.set("Access-Control-Allow-Origin", "*");
         return audioResponse;
@@ -48,27 +47,42 @@ export default {
 
       try {
         if (env.MY_BUCKET && (request.method === "GET" || request.method === "HEAD")) {
+          // Cloudflare R2 get() returns null if not found, 
+          // or an object without body if preconditions fail.
           const object = await env.MY_BUCKET.get(key, {
             onlyIf: request.headers,
             range: request.headers,
           });
 
-          if (object !== null) {
-            const headers = new Headers();
-            object.writeHttpMetadata(headers);
-            headers.set("etag", object.httpEtag);
-            headers.set("Access-Control-Allow-Origin", "*");
-            // Aggressive caching for R2 assets
-            headers.set("Cache-Control", "public, max-age=31536000, immutable");
-            
-            if (key.endsWith(".mp4")) headers.set("Content-Type", "video/mp4");
-            if (key.endsWith(".m4a")) headers.set("Content-Type", "audio/mp4");
-            
-            return new Response("body" in object ? object.body : undefined, {
-              status: "body" in object ? (request.method === "GET" ? 200 : 204) : 412,
-              headers,
-            });
+          if (object === null) {
+            // Not in R2, fallback to static assets
+            return await env.ASSETS.fetch(request);
           }
+
+          const headers = new Headers();
+          object.writeHttpMetadata(headers);
+          headers.set("etag", object.httpEtag);
+          headers.set("Access-Control-Allow-Origin", "*");
+          headers.set("Cache-Control", "public, max-age=31536000, immutable");
+          
+          if (key.endsWith(".mp4")) headers.set("Content-Type", "video/mp4");
+          if (key.endsWith(".m4a")) headers.set("Content-Type", "audio/mp4");
+
+          // Standard R2/S3 behavior: 
+          // If no body but object exists, precondition failed (likely 304 or 412)
+          if (!("body" in object)) {
+            // If it's a conditional GET (If-None-Match), return 304
+            if (request.headers.get("If-None-Match") === object.httpEtag) {
+              return new Response(null, { status: 304, headers });
+            }
+            // Otherwise it truly failed a precondition
+            return new Response(null, { status: 412, headers });
+          }
+          
+          return new Response(object.body, {
+            status: request.method === "GET" ? 200 : 204,
+            headers,
+          });
         }
         
         if (env.MY_BUCKET && (request.method === "PUT" || request.method === "DELETE")) {
@@ -147,7 +161,6 @@ export default {
         finalResponse.headers.set("Access-Control-Allow-Origin", "*");
         
         if (apiRes.ok) {
-          // Quran data is stable, cache for 1 week
           finalResponse.headers.set("Cache-Control", "public, max-age=604800");
           ctx.waitUntil(cache.put(request, finalResponse.clone()));
         }
