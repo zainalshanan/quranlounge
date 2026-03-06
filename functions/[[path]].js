@@ -1,6 +1,6 @@
 /**
  * CLOUDFLARE WORKER (WITH ASSETS)
- * Handles Proxying (Audio, API, R2) and falls back to Static Assets.
+ * Optimized for performance: Aggressive caching for R2 assets.
  */
 export default {
   async fetch(request, env, ctx) {
@@ -33,7 +33,8 @@ export default {
         }
 
         const audioResponse = new Response(res.body, res);
-        audioResponse.headers.set("Cache-Control", "public, max-age=2592000");
+        // Audio is highly cacheable
+        audioResponse.headers.set("Cache-Control", "public, max-age=31536000, immutable");
         audioResponse.headers.set("Access-Control-Allow-Origin", "*");
         return audioResponse;
       } catch (e) {
@@ -57,6 +58,9 @@ export default {
             object.writeHttpMetadata(headers);
             headers.set("etag", object.httpEtag);
             headers.set("Access-Control-Allow-Origin", "*");
+            // Aggressive caching for R2 assets
+            headers.set("Cache-Control", "public, max-age=31536000, immutable");
+            
             if (key.endsWith(".mp4")) headers.set("Content-Type", "video/mp4");
             if (key.endsWith(".m4a")) headers.set("Content-Type", "audio/mp4");
             
@@ -143,6 +147,7 @@ export default {
         finalResponse.headers.set("Access-Control-Allow-Origin", "*");
         
         if (apiRes.ok) {
+          // Quran data is stable, cache for 1 week
           finalResponse.headers.set("Cache-Control", "public, max-age=604800");
           ctx.waitUntil(cache.put(request, finalResponse.clone()));
         }

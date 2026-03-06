@@ -25,6 +25,8 @@ export default function SettingsPanel() {
   const setFloatingPomodoro = usePlayerStore(s => s.setFloatingPomodoro);
   const floatingTodo = usePlayerStore(s => s.floatingTodo);
   const setFloatingTodo = usePlayerStore(s => s.setFloatingTodo);
+  const performanceMode = usePlayerStore(s => s.performanceMode);
+  const setPerformanceMode = usePlayerStore(s => s.setPerformanceMode);
 
   return (
     <div className="panel-content">
@@ -32,7 +34,7 @@ export default function SettingsPanel() {
 
       {/* Widgets */}
       <div className="settings-section">
-        <label className="section-label">Widgets</label>
+        <label className="section-label">General</label>
         <div className="settings-toggles">
           <div className="setting-row">
             <span><Timer size={14} /> Floating Timer</span>
@@ -49,6 +51,14 @@ export default function SettingsPanel() {
           <div className="setting-row">
             <span><Eye size={14} /> Zen Mode</span>
             <button className={`toggle-pill ${zenMode ? 'on' : ''}`} onClick={toggleZenMode}>
+              <span className="pill-knob" />
+            </button>
+          </div>
+          <div className="setting-row">
+            <span title="Reduces CPU/GPU usage by lowering background resolution and particle counts.">
+              <Moon size={14} /> Low Power Mode
+            </span>
+            <button className={`toggle-pill ${performanceMode ? 'on' : ''}`} onClick={() => setPerformanceMode(!performanceMode)}>
               <span className="pill-knob" />
             </button>
           </div>

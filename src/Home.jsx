@@ -1,46 +1,66 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { usePlayerStore } from './store/usePlayerStore';
+import { useShallow } from 'zustand/react/shallow';
 import { getChapters, getReciters } from './api/quranClient';
 import { useAudioPlayer } from './hooks/useAudioPlayer';
-import Sidebar from './components/Sidebar';
-import CanvasBackground from './components/CanvasBackground';
 import './backgrounds.css';
-import VerseDisplay from './components/VerseDisplay';
 import Clock from './components/Clock';
-import NowPlayingBar from './components/NowPlayingBar';
-import FloatingPomodoro from './components/FloatingPomodoro';
-import FloatingTodo from './components/FloatingTodo';
+import VerseDisplay from './components/VerseDisplay';
 import { Eye } from 'lucide-react';
 
+// ─── Lazy Loaded Components ───
+const Sidebar = lazy(() => import('./components/Sidebar'));
+const CanvasBackground = lazy(() => import('./components/CanvasBackground'));
+const NowPlayingBar = lazy(() => import('./components/NowPlayingBar'));
+const FloatingPomodoro = lazy(() => import('./components/FloatingPomodoro'));
+const FloatingTodo = lazy(() => import('./components/FloatingTodo'));
 
 export default function Home() {
-  // Individual selectors — only re-render when the specific slice changes
-  const setChapters = usePlayerStore(s => s.setChapters);
-  const setReciters = usePlayerStore(s => s.setReciters);
-  const currentChapterId = usePlayerStore(s => s.currentChapterId);
-  const reciterId = usePlayerStore(s => s.reciterId);
-  const loadChapterData = usePlayerStore(s => s.loadChapterData);
-  const activeBackground = usePlayerStore(s => s.activeBackground);
-  const activeTheme = usePlayerStore(s => s.activeTheme);
-  const sidebarOpen = usePlayerStore(s => s.sidebarOpen);
-  const zenMode = usePlayerStore(s => s.zenMode);
-  const toggleZenMode = usePlayerStore(s => s.toggleZenMode);
-  const setZenMode = usePlayerStore(s => s.setZenMode);
-  const skipNext = usePlayerStore(s => s.skipNext);
-  const skipPrev = usePlayerStore(s => s.skipPrev);
-  const toggleSidebar = usePlayerStore(s => s.toggleSidebar);
-  const toggleFullscreen = usePlayerStore(s => s.toggleFullscreen);
-  const floatingPomodoro = usePlayerStore(s => s.floatingPomodoro);
-  const floatingTodo = usePlayerStore(s => s.floatingTodo);
+  const {
+    currentChapterId,
+    reciterId,
+    loadChapterData,
+    setChapters,
+    setReciters,
+    activeBackground,
+    activeTheme,
+    sidebarOpen,
+    zenMode,
+    toggleZenMode,
+    setZenMode,
+    skipNext,
+    skipPrev,
+    toggleSidebar,
+    toggleFullscreen,
+    floatingPomodoro,
+    floatingTodo,
+    performanceMode
+  } = usePlayerStore(useShallow(s => ({
+    currentChapterId: s.currentChapterId,
+    reciterId: s.reciterId,
+    loadChapterData: s.loadChapterData,
+    setChapters: s.setChapters,
+    setReciters: s.setReciters,
+    activeBackground: s.activeBackground,
+    activeTheme: s.activeTheme,
+    sidebarOpen: s.sidebarOpen,
+    zenMode: s.zenMode,
+    toggleZenMode: s.toggleZenMode,
+    setZenMode: s.setZenMode,
+    skipNext: s.skipNext,
+    skipPrev: s.skipPrev,
+    toggleSidebar: s.toggleSidebar,
+    toggleFullscreen: s.toggleFullscreen,
+    floatingPomodoro: s.floatingPomodoro,
+    floatingTodo: s.floatingTodo,
+    performanceMode: s.performanceMode
+  })));
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function init() {
-      const [chaps, recs] = await Promise.all([
-        getChapters(),
-        getReciters()
-      ]);
+      const [chaps, recs] = await Promise.all([getChapters(), getReciters()]);
       setChapters(chaps);
       setReciters(recs);
       await loadChapterData(currentChapterId, reciterId);
@@ -51,7 +71,6 @@ export default function Home() {
 
   useAudioPlayer();
 
-  // Apply theme CSS variables
   useEffect(() => {
     if (activeTheme?.colors) {
       Object.entries(activeTheme.colors).forEach(([key, value]) => {
@@ -60,39 +79,17 @@ export default function Home() {
     }
   }, [activeTheme]);
 
-  // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-
       switch (e.code) {
-        case 'Space':
-          e.preventDefault();
-          usePlayerStore.getState().setIsPlaying(!usePlayerStore.getState().isPlaying);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          skipNext();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          skipPrev();
-          break;
-        case 'KeyS':
-          e.preventDefault();
-          toggleSidebar();
-          break;
-        case 'KeyF':
-          e.preventDefault();
-          toggleFullscreen();
-          break;
-        case 'KeyZ':
-          e.preventDefault();
-          toggleZenMode();
-          break;
-        case 'Escape':
-          if (zenMode) setZenMode(false);
-          break;
+        case 'Space': e.preventDefault(); usePlayerStore.getState().setIsPlaying(!usePlayerStore.getState().isPlaying); break;
+        case 'ArrowRight': e.preventDefault(); skipNext(); break;
+        case 'ArrowLeft': e.preventDefault(); skipPrev(); break;
+        case 'KeyS': e.preventDefault(); toggleSidebar(); break;
+        case 'KeyF': e.preventDefault(); toggleFullscreen(); break;
+        case 'KeyZ': e.preventDefault(); toggleZenMode(); break;
+        case 'Escape': if (zenMode) setZenMode(false); break;
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -112,45 +109,50 @@ export default function Home() {
   }
 
   return (
-    <div className={`app ${zenMode ? 'zen-active' : ''}`}>
-      {/* Background */}
-      {activeBackground.type === 'video' ? (
-        <video
-          key={activeBackground.id}
-          className="background background-video"
-          src={activeBackground.url}
-          autoPlay
-          loop
-          muted
-          playsInline
-        />
-      ) : activeBackground.type === 'canvas' ? (
-        <CanvasBackground key={activeBackground.id} id={activeBackground.id} />
-      ) : activeBackground.type === 'css' ? (
-        <div key={activeBackground.id} className={`bg-css bg-css-${activeBackground.id}`}>
-          {activeBackground.id === 'starfield' && <div className="stars-layer" />}
-          {activeBackground.id === 'ember' && (
-            <div className="ember-particles">
-              <span /><span /><span /><span /><span /><span />
-              <span /><span /><span /><span /><span /><span />
-            </div>
-          )}
-        </div>
-      ) : (
-        <div
-          className="background"
-          style={{
-            backgroundImage: activeBackground.url ? `url(${activeBackground.url})` : 'none',
-            backgroundColor: activeBackground.url ? 'transparent' : '#0a0a0a',
-          }}
-        />
-      )}
+    <div className={`app ${zenMode ? 'zen-active' : ''} ${performanceMode ? 'perf-mode' : ''}`}>
+      {/* Background Section */}
+      <Suspense fallback={<div className="background" style={{ backgroundColor: '#0a0a0a' }} />}>
+        {activeBackground.type === 'video' ? (
+          <video
+            key={activeBackground.id}
+            className="background background-video"
+            src={activeBackground.url}
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+        ) : activeBackground.type === 'canvas' ? (
+          <CanvasBackground key={activeBackground.id} id={activeBackground.id} />
+        ) : activeBackground.type === 'css' ? (
+          <div key={activeBackground.id} className={`bg-css bg-css-${activeBackground.id}`}>
+            {activeBackground.id === 'starfield' && <div className="stars-layer" />}
+            {activeBackground.id === 'ember' && (
+              <div className="ember-particles">
+                <span /><span /><span /><span /><span /><span />
+                <span /><span /><span /><span /><span /><span />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            className="background"
+            style={{
+              backgroundImage: activeBackground.url ? `url(${activeBackground.url})` : 'none',
+              backgroundColor: activeBackground.url ? 'transparent' : '#0a0a0a',
+            }}
+          />
+        )}
+      </Suspense>
+      
       <div className="background-overlay" />
 
-      {/* Sidebar — hidden in zen mode */}
-      {!zenMode && <Sidebar />}
+      {!zenMode && (
+        <Suspense fallback={null}>
+          <Sidebar />
+        </Suspense>
+      )}
 
-      {/* Main content area */}
       <main className={`main-content ${sidebarOpen && !zenMode ? 'sidebar-open' : ''} ${zenMode ? 'zen-main' : ''}`}>
         <Clock />
         <div className="verse-area">
@@ -158,21 +160,17 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Floating widgets */}
-      {floatingPomodoro && <FloatingPomodoro />}
-      {floatingTodo && <FloatingTodo />}
+      <Suspense fallback={null}>
+        {floatingPomodoro && <FloatingPomodoro />}
+        {floatingTodo && <FloatingTodo />}
+        {!zenMode && <NowPlayingBar />}
+      </Suspense>
 
-      {/* Bottom bar — hidden in zen mode, minimizable */}
-      {!zenMode && <NowPlayingBar />}
-
-      {/* Zen mode exit button */}
       {zenMode && (
         <button className="zen-exit-btn" onClick={() => setZenMode(false)} title="Exit Zen Mode (Z or Esc)">
           <Eye size={18} />
         </button>
       )}
-
-
     </div>
   );
 }
