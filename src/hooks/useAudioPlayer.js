@@ -18,6 +18,7 @@ export function useAudioPlayer() {
   const recitationHowlRef = useRef(null);
   const ambientHowlsRef = useRef({});
   const syncIntervalRef = useRef(null);
+  const sleepTimerRef = useRef(null);
   const isPlayingRef = useRef(false);
   const currentVerseIndexRef = useRef(0);
   const generationRef = useRef(0);
