@@ -225,6 +225,16 @@ const createAudioSlice = (set, get) => ({
     get().loadChapterData(get().currentChapterId, id);
   },
 
+  excludedReciters: loadFromStorage('excludedReciters', []),
+  toggleExcludedReciter: (id) => {
+    const current = get().excludedReciters;
+    const next = current.includes(id) 
+      ? current.filter(x => x !== id) 
+      : [...current, id];
+    saveToStorage('excludedReciters', next);
+    set({ excludedReciters: next });
+  },
+
   _requestAudioDestroy: null,
 });
 
