@@ -1,4 +1,3 @@
-import React from 'react';
 import { AMBIENT_TRACKS, usePlayerStore } from '../../store/usePlayerStore';
 
 export default function AmbientMixerPanel() {

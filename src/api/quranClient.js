@@ -74,7 +74,7 @@ export async function getReciters() {
 export async function getChapters() {
   try {
     return await quranClient.chapters.findAll();
-  } catch (error) {
+  } catch {
     return [];
   }
 }
@@ -87,7 +87,7 @@ export async function getChapterVerses(chapterId, translationId = 131) {
       perPage: 300,
       wordFields: { textUthmani: true }
     });
-  } catch (error) {
+  } catch {
     return [];
   }
 }

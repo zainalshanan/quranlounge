@@ -22,7 +22,7 @@ describe('Highlight Synchronization Debug', () => {
       console.log('Testing Range Logic (Hypothesis: 0-indexed segments to 1-indexed words)');
       
       audio1.segments.forEach((seg, i) => {
-        const [wordFrom, wordTo, timeFrom, timeTo] = seg;
+        const [wordFrom, wordTo] = seg;
         // Shift to 1-based
         const posFrom = wordFrom + 1;
         const posTo = wordTo + 1;
