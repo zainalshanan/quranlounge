@@ -1,0 +1,103 @@
+.verse-display-container {
+  max-width: 1000px;
+  width: 94%;
+  height: 60vh;
+  text-align: center;
+  margin: 0 auto;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 4vh 2rem;
+  border-radius: 32px;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s, border-color 0.3s, height 0.3s;
+  overflow-y: auto;
+  position: relative;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.verse-display-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+.verse-display-container.no-backdrop {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: transparent;
+}
+
+.verse-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  margin: auto 0;
+}
+
+.verse-arabic {
+  font-size: 2.2rem;
+  line-height: 1.9;
+  word-spacing: 0.4rem;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  font-family: 'QPC', 'Amiri', serif;
+}
+
+.verse-english {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.75);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Words base */
+.quran-word, .en-word {
+  display: inline;
+  padding: 0 0.12rem;
+  transition: color 0.15s, text-shadow 0.15s;
+  border-radius: 4px;
+}
+
+/* Active word — just color/glow, NO background by default */
+.active-word {
+  transform: translateY(-1px);
+  display: inline;
+}
+
+/* Background only when explicitly enabled */
+.active-word-bg {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.loading-pulse {
+  font-size: 1.2rem;
+  font-weight: 300;
+  opacity: 0.5;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@media (max-width: 768px) {
+  .verse-display-container {
+    padding: 2vh 1rem;
+    width: 96%;
+    border-radius: 20px;
+  }
+
+  .verse-content {
+    gap: 1.2rem;
+  }
+}

@@ -1,125 +1,522 @@
 :root {
-  font-family: 'Courier New', Courier, monospace; /* Retro font */
-  color-scheme: light dark;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #0a0a0a;
+
+  --theme-bg: rgba(10, 18, 14, 0.85);
+  --theme-surface: rgba(16, 32, 22, 0.6);
+  --theme-accent: #34d399;
+  --theme-accent-glow: rgba(52, 211, 153, 0.3);
+  --theme-text: #ffffff;
+  --theme-text-secondary: rgba(255, 255, 255, 0.55);
+  --theme-border: rgba(52, 211, 153, 0.15);
+  --theme-hover: rgba(52, 211, 153, 0.1);
+  --theme-active: rgba(52, 211, 153, 0.2);
 }
 
 @font-face {
-  font-family: 'QPC-Hafs';
-  src: url('/fonts/QPC.ttf') format('truetype');
+  font-family: 'QPC';
+  src: url('/assets/QPC.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
 
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden; /* Prevent scrolling */
+  overflow: hidden;
 }
 
-.app {
-  position: fixed; /* Ensure it spans the full viewport */
-  top: 0;
-  left: 0;
+#root {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column; /* Ensure elements stack properly */
-  justify-content: center; /* Center vertically */
-  align-items: center; /* Center horizontally */
-  z-index: 1; /* Above background */
 }
 
-.player {
-  position: fixed; /* Fixed position to stay relative to viewport */
-  bottom: 10%; /* Distance from the bottom */
-  left: 2%; /* Distance from the left */
-  border: 2px solid #444;
-  border-radius: 10px;
-  padding: 10px;
-  color: white;
+/* ─── App Layout ─── */
+.app {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+}
+
+/* ─── Background ─── */
+.background {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -2;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.8s ease-in-out;
+}
+
+.background-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.4) 100%);
+  pointer-events: none;
+}
+
+/* ─── Main Content ─── */
+.main-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: rgba(53, 53, 53, 0.21); /* Semi-transparent background */
-  z-index: 2; /* Ensure it's above background */
-  cursor: grab; /* Indicate draggable */
+  justify-content: center;
+  padding-bottom: 72px;
+  margin-left: 64px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
-
-.transcription {
-  font-family: 'QPC-Hafs, KFGQPC Uthmanic Script', Amiri Quran;
-  font-size: 3em;
-  margin: 20px;
-  position: fixed; /* Independent positioning */
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* Center horizontally and vertically */
-  color: white;
-  text-align: center;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
-  white-space: normal; /* Allow text to wrap */
-  word-wrap: break-word; /* Break words if needed */
-  z-index: 2; /* Above background */
-}
-.english-line {
-  font-size: 0.7em;
-  margin-top: 0.005em
+.main-content.sidebar-open {
+  margin-left: 364px;
 }
 
+.main-content.zen-main {
+  margin-left: 0;
+  padding-bottom: 0;
+}
 
-.background {
-  position: fixed; /* Ensure it spans the entire viewport */
-  top: 0;
-  left: 0;
+.verse-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
   width: 100%;
-  height: 100%;
-  z-index: 0; /* Behind all other elements */
-  filter: brightness(60%)
+  padding: 2rem;
 }
 
+/* ─── Clock Overlay ─── */
+.clock-overlay {
+  position: absolute;
+  top: 2rem; right: 2rem;
+  text-align: right;
+  z-index: 50;
+  color: var(--theme-text);
+}
 
-.controls button {
-  background-color: rgb(131, 131, 131);
-  border: none;
+.clock-time-display {
+  font-size: 2.2rem;
+  font-weight: 300;
+  letter-spacing: -1px;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+.clock-date-display {
+  font-size: 0.82rem;
+  opacity: 0.6;
+  margin-top: 2px;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.3);
+}
+
+/* ─── Zen Mode ─── */
+.app.zen-active .clock-overlay {
+  top: 1rem;
+  right: 1rem;
+}
+
+.zen-exit-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.5);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0.3;
+}
+
+.zen-exit-btn:hover {
+  opacity: 1;
   color: white;
-  padding: 10px;
-  margin: 5px;
+  background: rgba(0,0,0,0.6);
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* ─── Floating Widgets ─── */
+.floating-widget {
+  position: fixed;
+  z-index: 800;
+  background: var(--theme-bg);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid var(--theme-border);
+  border-radius: 18px;
+  padding: 12px 16px;
+  min-width: 180px;
+  cursor: grab;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+.floating-widget:active { cursor: grabbing; }
+
+/* Widget style: transparent */
+.widget-transparent {
+  background: rgba(0,0,0,0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-color: rgba(255,255,255,0.04);
+  box-shadow: none;
+}
+
+/* Widget style: neon */
+.widget-neon {
+  background: rgba(0,0,0,0.7);
+  border: 1px solid var(--theme-accent);
+  box-shadow: 0 0 20px var(--theme-accent-glow), 0 0 60px rgba(0,0,0,0.5);
+}
+
+.widget-neon .fw-pomo-time,
+.widget-neon .fw-title {
+  text-shadow: 0 0 12px var(--theme-accent-glow);
+}
+
+/* Widget style: solid */
+.widget-solid {
+  background: #1a1a1a;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: #333;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+}
+
+/* Widget style: radio (retro radio dial look) */
+.widget-radio {
+  background: linear-gradient(135deg, #1a1612 0%, #2a2018 100%);
+  border: 2px solid #4a3828;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 30px rgba(0,0,0,0.6);
+}
+
+.widget-radio .fw-pomo-time {
+  font-family: 'Courier New', monospace;
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251,191,36,0.4);
+}
+
+.floating-pomo {
+  top: 80px;
+  right: 100px;
+}
+
+.floating-todo {
+  top: 80px;
+  right: 320px;
+  min-width: 220px;
+}
+
+.fw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.fw-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--theme-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fw-close {
+  background: none;
+  border: none;
+  color: var(--theme-text-secondary);
   cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  transition: all 0.2s;
 }
 
-.controls button:hover {
-  background-color: rgb(137, 137, 137);
-  transform: scale(1.1);
+.fw-close:hover {
+  color: #ef4444;
+  background: rgba(239,68,68,0.1);
 }
 
-.volume-slider {
-  margin-top: 10px;
-  width: 80%;
-  direction: ltr; /* Ensure left-to-right movement */
+/* Floating Pomodoro */
+.fw-pomo-display {
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.fw-pomo-time {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--theme-text);
+  letter-spacing: -1px;
+}
+
+.fw-pomo-bar {
+  height: 3px;
+  background: var(--theme-surface);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.fw-pomo-fill {
+  height: 100%;
+  background: var(--theme-accent);
+  border-radius: 2px;
+  transition: width 1s linear;
+}
+
+.fw-pomo-controls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.fw-pomo-controls button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-surface);
+  color: var(--theme-text);
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
+.fw-pomo-controls button:hover {
+  background: var(--theme-hover);
+}
+
+/* Floating Todo */
+.fw-todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+}
+
+.fw-todo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: var(--theme-text);
+}
+
+.fw-todo-item.done span {
+  text-decoration: line-through;
+  opacity: 0.4;
+}
+
+.fw-todo-item button {
+  background: none;
+  border: none;
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+}
+
+.fw-todo-item.done button:first-child {
+  color: var(--theme-accent);
+}
+
+.fw-todo-del {
+  opacity: 0;
+  transition: opacity 0.2s;
+  margin-left: auto;
+}
+
+.fw-todo-item:hover .fw-todo-del {
+  opacity: 1;
+}
+
+.fw-todo-del:hover {
+  color: #ef4444 !important;
+}
+
+.fw-todo-add {
+  display: flex;
+  gap: 6px;
+}
+
+.fw-todo-add input {
+  flex: 1;
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.78rem;
+}
+
+.fw-todo-add input::placeholder {
+  color: var(--theme-text-secondary);
+}
+
+.fw-todo-add button {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: var(--theme-accent);
+  color: #000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fw-todo-add button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ─── Loading ─── */
+.loading-screen {
+  background-color: #0a0a0a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+}
+
+.loading-content {
+  text-align: center;
+}
+
+.loading-content h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.loading-content p {
+  font-size: 0.85rem;
+  opacity: 0.5;
+}
+
+.loading-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: var(--theme-accent, #34d399);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── Footer ─── */
+.app-footer {
+  position: fixed;
+  bottom: 78px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  z-index: 100;
+}
+
+.app-footer a {
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+  font-size: 0.7rem;
+  transition: color 0.2s;
+}
+
+.app-footer a:hover {
+  color: rgba(255,255,255,0.7);
+}
+
+/* ─── Policy Pages ─── */
+.policy-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  line-height: 1.6;
+  color: #e0e0e0;
+  text-align: left;
+  background-color: #1a1a1a;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.policy-container h1 {
+  color: #ffffff;
+  margin-bottom: 20px;
+  font-size: 2.5rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.policy-container h2 {
+  color: #ffffff;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+}
+
+.policy-container p { margin-bottom: 15px; }
+.policy-container ul { margin-bottom: 20px; padding-left: 20px; }
+.policy-container li { margin-bottom: 10px; }
+.policy-container a { color: #4CAF50; text-decoration: none; }
+.policy-container a:hover { text-decoration: underline; }
+
+.policy-footer {
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid #333;
+  text-align: center;
+}
+
+/* ─── Responsive ─── */
 @media (max-width: 768px) {
-  .transcription {
-    font-size: 1.5rem; /* Adjust transcription size for smaller screens */
+  .main-content {
+    margin-left: 0;
+    padding-bottom: 64px;
   }
 
-  .player {
-    bottom: 5%; /* Adjust player position */
-  }
-}
+  .main-content.sidebar-open { margin-left: 0; }
+  .main-content.zen-main { padding-bottom: 0; }
 
-@media (max-width: 480px) {
-  .transcription {
-    font-size: 1.2rem; /* Further reduce transcription size */
+  .clock-overlay {
+    top: 16px;
+    right: 16px;
   }
 
-  .player {
-    bottom: 5%; /* Adjust player position further */
-    padding: 5px; /* Smaller padding */
-  }
+  .clock-time-display { font-size: 1.4rem; }
+  .verse-area { padding: 1rem; }
+  .app-footer { bottom: 70px; right: 12px; }
+
+  .floating-pomo { top: 60px; right: 16px; }
+  .floating-todo { top: 60px; right: 16px; }
 }

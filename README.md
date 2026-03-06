@@ -14,8 +14,10 @@ This is a React-based web application designed to provide an immersive Quran rec
 
 ### Key Files and Components
 
-- **`App.jsx`**: Entry point of the application and routing setup.
+- **`App.jsx`**: Main router for the application.
+- **`Home.jsx`**: Main application page with the player and transcription.
 - **`SurahAudioPlayer.jsx`**: Core component for handling audio playback and subtitle synchronization.
+- **`PrivacyPolicy.jsx` & `TermsOfService.jsx`**: Legally required documents for the application.
 
 ## Installation
 
