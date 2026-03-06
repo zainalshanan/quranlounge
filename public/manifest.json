@@ -1,0 +1,23 @@
+{
+  "name": "Quran Lounge",
+  "short_name": "QuranLounge",
+  "description": "Recite, reflect, and relax with the Quran in a beautiful immersive environment.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#34d399",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/quranlounge.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/quranlounge.ico",
+      "sizes": "192x192",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    }
+  ]
+}
