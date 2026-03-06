@@ -37,35 +37,26 @@ export default {
         audioResponse.headers.set("Access-Control-Allow-Origin", "*");
         return audioResponse;
       } catch (e) {
-        console.error("Audio Proxy Error:", e.message);
         return new Response("Audio Proxy Error", { status: 502 });
       }
     }
 
     // 2. R2 Proxying (Assets & Data)
     if (url.pathname.startsWith("/assets/") || url.pathname.startsWith("/data/")) {
-      const key = decodeURIComponent(url.pathname.substring(1)); // Handle spaces in filenames
-      console.log(`[R2] Requesting Key: ${key}`);
+      const key = decodeURIComponent(url.pathname.substring(1)); 
 
       try {
-        if (!env.MY_BUCKET) {
-          console.error("[R2] MY_BUCKET binding is missing!");
-          return new Response("Internal Server Error: Bucket Binding Missing", { status: 500 });
-        }
-
-        if (request.method === "GET" || request.method === "HEAD") {
+        if (env.MY_BUCKET && (request.method === "GET" || request.method === "HEAD")) {
           const object = await env.MY_BUCKET.get(key, {
             onlyIf: request.headers,
             range: request.headers,
           });
 
           if (object !== null) {
-            console.log(`[R2] Found object: ${key}`);
             const headers = new Headers();
             object.writeHttpMetadata(headers);
             headers.set("etag", object.httpEtag);
             headers.set("Access-Control-Allow-Origin", "*");
-            // Ensure proper content-type for videos/audio
             if (key.endsWith(".mp4")) headers.set("Content-Type", "video/mp4");
             if (key.endsWith(".m4a")) headers.set("Content-Type", "audio/mp4");
             
@@ -73,13 +64,10 @@ export default {
               status: "body" in object ? (request.method === "GET" ? 200 : 204) : 412,
               headers,
             });
-          } else {
-            console.warn(`[R2] Object NOT found: ${key}`);
-            // Fallback to static assets if not in R2
           }
         }
         
-        if (request.method === "PUT" || request.method === "DELETE") {
+        if (env.MY_BUCKET && (request.method === "PUT" || request.method === "DELETE")) {
           if (request.headers.get("X-Custom-Auth-Key") !== env.AUTH_KEY_SECRET) {
             return new Response("Forbidden", { status: 403 });
           }
@@ -95,8 +83,7 @@ export default {
           }
         }
       } catch (e) {
-        console.error(`[R2] Critical Error for ${key}:`, e.message);
-        return new Response(`R2 Error: ${e.message}`, { status: 500 });
+        return new Response(`R2 Error`, { status: 500 });
       }
     }
 
@@ -161,7 +148,6 @@ export default {
         }
         return finalResponse;
       } catch (e) {
-        console.error("API Proxy Error:", e.message);
         return new Response("API Proxy Error", { status: 502 });
       }
     }
@@ -170,7 +156,6 @@ export default {
     try {
       let response = await env.ASSETS.fetch(request);
       
-      // If not found (404), serve index.html for SPA routing
       if (response.status === 404 && !url.pathname.includes(".")) {
         const indexRequest = new Request(url.origin + "/index.html", request);
         response = await env.ASSETS.fetch(indexRequest);
@@ -178,7 +163,6 @@ export default {
 
       return response;
     } catch (e) {
-      console.error("Asset Fetch Error:", e.message);
       return new Response("Asset Fetch Error", { status: 500 });
     }
   }
