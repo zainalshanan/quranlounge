@@ -59,14 +59,24 @@ export default function VerseDisplay() {
 
   const containerRef = useRef(null);
 
-  // Scroll to top only when verse changes, not on every word highlight.
-  // Word highlighting is visual (color/glow) — no need to scroll chase it.
-  // This prevents long verses from hiding the translation below.
+  // Reset scroll on verse change
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentVerseIndex]);
+
+  // Auto-scroll to keep active word visible for hands-free study.
+  // Uses 'nearest' instead of 'center' so it only scrolls when the word
+  // is actually out of view — won't aggressively hide the translation.
+  useEffect(() => {
+    if (activeWordIds.length > 0 && containerRef.current) {
+      const activeElement = containerRef.current.querySelector('.active-word');
+      if (activeElement) {
+        activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+      }
+    }
+  }, [activeWordIds]);
 
   const currentVerse = verses[currentVerseIndex];
   const ts = customTextStyle || activeTextStyle;

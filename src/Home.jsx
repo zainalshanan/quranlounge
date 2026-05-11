@@ -128,9 +128,12 @@ export default function Home() {
           <p>{loading ? 'Loading Quran data...' : 'Ready to begin your session'}</p>
           
           {!loading && (
-            <button 
-              className="start-btn" 
-              onClick={() => setIsStarted(true)}
+            <button
+              className="start-btn"
+              onClick={() => {
+                usePlayerStore.getState().setIsPlaying(true);
+                setIsStarted(true);
+              }}
               autoFocus
             >
               <Play size={20} fill="currentColor" />
