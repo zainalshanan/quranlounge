@@ -195,6 +195,9 @@ const createSettingsSlice = (set, get) => ({
   verseLayout: loadFromStorage('verseLayout', 'stacked'),
   setVerseLayout: (layout) => { saveToStorage('verseLayout', layout); set({ verseLayout: layout }); },
 
+  containerStyle: loadFromStorage('containerStyle', 'glass'),
+  setContainerStyle: (style) => { saveToStorage('containerStyle', style); set({ containerStyle: style }); },
+
   translationId: loadFromStorage('translationId', 131),
   setTranslationId: (id) => {
     saveToStorage('translationId', id);

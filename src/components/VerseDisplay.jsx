@@ -56,6 +56,7 @@ export default function VerseDisplay() {
     activeTextStyle,
     customTextStyle,
     verseLayout,
+    containerStyle,
   } = usePlayerStore(useShallow(s => ({
     verses: s.verses,
     currentVerseIndex: s.currentVerseIndex,
@@ -70,6 +71,7 @@ export default function VerseDisplay() {
     activeTextStyle: s.activeTextStyle,
     customTextStyle: s.customTextStyle,
     verseLayout: s.verseLayout,
+    containerStyle: s.containerStyle,
   })));
 
   const containerRef = useRef(null);
@@ -112,7 +114,7 @@ export default function VerseDisplay() {
 
   if (isLoadingChapter || !currentVerse) {
     return (
-      <div className={`verse-display-container loading-state ${showTextBackdrop ? '' : 'no-backdrop'}`}>
+      <div className={`verse-display-container container-${containerStyle} loading-state ${showTextBackdrop ? '' : 'no-backdrop'}`}>
         <div className="verse-loader">
           <div className="verse-loader-spinner" />
           <span className="verse-loader-text">{isLoadingChapter ? 'Loading surah...' : 'Preparing verses...'}</span>
@@ -212,7 +214,7 @@ export default function VerseDisplay() {
   };
 
   return (
-    <div ref={containerRef} className={`verse-display-container ${showTextBackdrop ? '' : 'no-backdrop'}`} role="region" aria-label="Quran verse display" aria-live="polite">
+    <div ref={containerRef} className={`verse-display-container container-${containerStyle} ${showTextBackdrop ? '' : 'no-backdrop'}`} role="region" aria-label="Quran verse display" aria-live="polite">
       <AnimatePresence mode="wait">
         <motion.div
           key={`${currentVerseIndex}-${verseLayout}`}

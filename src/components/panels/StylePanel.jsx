@@ -48,6 +48,8 @@ export default function StylePanel() {
   const setFontSizeScale = usePlayerStore(s => s.setFontSizeScale);
   const verseLayout = usePlayerStore(s => s.verseLayout);
   const setVerseLayout = usePlayerStore(s => s.setVerseLayout);
+  const containerStyle = usePlayerStore(s => s.containerStyle);
+  const setContainerStyle = usePlayerStore(s => s.setContainerStyle);
   const reciterId = usePlayerStore(s => s.reciterId);
   const isQUL = typeof reciterId === 'string' && reciterId.startsWith('local:');
 
@@ -67,6 +69,15 @@ export default function StylePanel() {
             <button className={verseLayout === 'stacked' ? 'active' : ''} onClick={() => setVerseLayout('stacked')}>Stacked</button>
             <button className={verseLayout === 'sideBySide' ? 'active' : ''} onClick={() => setVerseLayout('sideBySide')}>Side by Side</button>
             <button className={verseLayout === 'wordByWord' ? 'active' : ''} onClick={() => setVerseLayout('wordByWord')}>Word by Word</button>
+          </div>
+        </div>
+        <div className="control-row">
+          <label>Container</label>
+          <div className="segmented-control">
+            <button className={containerStyle === 'glass' ? 'active' : ''} onClick={() => setContainerStyle('glass')}>Glass</button>
+            <button className={containerStyle === 'book' ? 'active' : ''} onClick={() => setContainerStyle('book')}>Book</button>
+            <button className={containerStyle === 'parchment' ? 'active' : ''} onClick={() => setContainerStyle('parchment')}>Parchment</button>
+            <button className={containerStyle === 'clean' ? 'active' : ''} onClick={() => setContainerStyle('clean')}>Clean</button>
           </div>
         </div>
         <div className="control-row">

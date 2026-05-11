@@ -1,7 +1,8 @@
+/* ─── Base Container ─── */
 .verse-display-container {
   max-width: 1000px;
   width: 94%;
-  max-height: 100%; /* Fill available flex space from .verse-area */
+  max-height: 100%;
   text-align: center;
   margin: auto;
   color: white;
@@ -10,11 +11,6 @@
   align-items: center;
   justify-content: flex-start;
   padding: 2rem;
-  border-radius: 32px;
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
   overflow-y: auto;
   overflow-x: hidden;
@@ -23,20 +19,134 @@
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
-.verse-display-container::-webkit-scrollbar {
-  width: 5px;
-}
-
-.verse-display-container::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-}
+.verse-display-container::-webkit-scrollbar { width: 5px; }
+.verse-display-container::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
 
 .verse-display-container.no-backdrop {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ─── Glass (default) ─── */
+.container-glass {
+  border-radius: 32px;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Open Book ─── */
+.container-book {
+  border-radius: 4px;
+  background: linear-gradient(
+    to right,
+    rgba(20, 15, 10, 0.7) 0%,
+    rgba(25, 20, 15, 0.65) 49%,
+    rgba(15, 12, 8, 0.85) 49.5%,
+    rgba(15, 12, 8, 0.85) 50.5%,
+    rgba(25, 20, 15, 0.65) 51%,
+    rgba(20, 15, 10, 0.7) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(180, 150, 100, 0.12);
+  box-shadow:
+    0 2px 40px rgba(0, 0, 0, 0.4),
+    inset 0 0 80px rgba(0, 0, 0, 0.15),
+    0 0 1px rgba(180, 150, 100, 0.15);
+  padding: 2.5rem 2rem;
+}
+
+.container-book::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(180, 150, 100, 0.15) 15%,
+    rgba(180, 150, 100, 0.2) 50%,
+    rgba(180, 150, 100, 0.15) 85%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.container-book::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 0, 0, 0.12) 40%,
+    rgba(0, 0, 0, 0.2) 50%,
+    rgba(0, 0, 0, 0.12) 60%,
+    transparent
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Book + side-by-side: Arabic on right page, translation on left */
+.container-book .verse-side-by-side .verse-arabic {
+  border-right: none;
+  padding-right: 2rem;
+}
+
+.container-book .verse-side-by-side .verse-english {
+  padding-left: 2rem;
+}
+
+/* ─── Parchment ─── */
+.container-parchment {
+  border-radius: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(45, 35, 25, 0.6) 0%,
+    rgba(35, 28, 18, 0.55) 50%,
+    rgba(40, 32, 22, 0.6) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(180, 150, 100, 0.1);
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(180, 150, 100, 0.06);
+}
+
+.container-parchment::before {
+  content: '﷽';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: rgba(180, 150, 100, 0.2);
+  pointer-events: none;
+  font-family: 'QPC', 'Amiri', serif;
+}
+
+/* ─── Clean (no container) ─── */
+.container-clean {
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border-color: transparent;
+  border: none;
+  border-radius: 0;
 }
 
 /* Loading state — centered */
