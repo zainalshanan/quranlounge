@@ -62,19 +62,19 @@ export default function DisplayPanel() {
 
       {/* Display Languages */}
       <div className="control-row">
-        <label>Languages</label>
+        <label>Show</label>
         <div className="toggle-group">
           <button
             className={displayLanguages.includes('arabic') ? 'active' : ''}
             onClick={() => toggleDisplayLanguage('arabic')}
           >
-            العربية
+            Arabic
           </button>
           <button
             className={displayLanguages.includes('english') ? 'active' : ''}
             onClick={() => toggleDisplayLanguage('english')}
           >
-            English
+            Translation
           </button>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function DisplayPanel() {
             className={highlightEnglish ? 'active' : ''}
             onClick={() => setHighlightEnglish(!highlightEnglish)}
           >
-            English {highlightEnglish ? '✦' : '○'}
+            Translation {highlightEnglish ? '✦' : '○'}
           </button>
         </div>
       </div>

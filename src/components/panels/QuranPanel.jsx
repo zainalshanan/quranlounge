@@ -13,6 +13,9 @@ export default function QuranPanel() {
   const toggleExcludedReciter = usePlayerStore(s => s.toggleExcludedReciter);
   const loopMode = usePlayerStore(s => s.loopMode);
   const setLoopMode = usePlayerStore(s => s.setLoopMode);
+  const translations = usePlayerStore(s => s.translations);
+  const translationId = usePlayerStore(s => s.translationId);
+  const setTranslationId = usePlayerStore(s => s.setTranslationId);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showReciterMgmt, setShowReciterMgmt] = useState(false);
@@ -117,6 +120,25 @@ export default function QuranPanel() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Translation */}
+      {translations.length > 0 && (
+        <div className="control-row">
+          <label htmlFor="translation-select">Translation</label>
+          <select
+            id="translation-select"
+            value={translationId}
+            onChange={e => setTranslationId(parseInt(e.target.value))}
+            aria-label="Select translation"
+          >
+            {translations.map(t => (
+              <option key={t.id} value={t.id}>
+                {t.name}{t.languageName ? ` (${t.languageName})` : ''}
+              </option>
+            ))}
+          </select>
         </div>
       )}
 

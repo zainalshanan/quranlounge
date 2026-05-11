@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BACKGROUNDS, TEXT_STYLE_PRESETS, usePlayerStore } from '../../store/usePlayerStore';
-import { Palette } from 'lucide-react';
+import { Palette, Info } from 'lucide-react';
 
 const CSS_BG_PREVIEWS = {
   aurora: 'linear-gradient(135deg, #0d1f2d, #1a0a2e, #0a2a2a)',
@@ -33,6 +33,21 @@ export default function StylePanel() {
   const clearCustomTextStyle = usePlayerStore(s => s.clearCustomTextStyle);
   const widgetStyle = usePlayerStore(s => s.widgetStyle);
   const setWidgetStyle = usePlayerStore(s => s.setWidgetStyle);
+  // Display controls (merged from Display panel)
+  const displayLanguages = usePlayerStore(s => s.displayLanguages);
+  const toggleDisplayLanguage = usePlayerStore(s => s.toggleDisplayLanguage);
+  const highlightArabic = usePlayerStore(s => s.highlightArabic);
+  const setHighlightArabic = usePlayerStore(s => s.setHighlightArabic);
+  const highlightEnglish = usePlayerStore(s => s.highlightEnglish);
+  const setHighlightEnglish = usePlayerStore(s => s.setHighlightEnglish);
+  const highlightWordBg = usePlayerStore(s => s.highlightWordBg);
+  const setHighlightWordBg = usePlayerStore(s => s.setHighlightWordBg);
+  const showTextBackdrop = usePlayerStore(s => s.showTextBackdrop);
+  const setShowTextBackdrop = usePlayerStore(s => s.setShowTextBackdrop);
+  const fontSizeScale = usePlayerStore(s => s.fontSizeScale);
+  const setFontSizeScale = usePlayerStore(s => s.setFontSizeScale);
+  const reciterId = usePlayerStore(s => s.reciterId);
+  const isQUL = typeof reciterId === 'string' && reciterId.startsWith('local:');
 
   const [showCustom, setShowCustom] = useState(false);
   const ts = customTextStyle || activeTextStyle;
@@ -40,6 +55,47 @@ export default function StylePanel() {
   return (
     <div className="panel-content">
       <h3 className="panel-title">Style</h3>
+
+      {/* Text Display */}
+      <div className="settings-section">
+        <label className="section-label">Text</label>
+        <div className="control-row">
+          <label htmlFor="font-size-slider">Font Size</label>
+          <div className="slider-row">
+            <span className="slider-label">A</span>
+            <input id="font-size-slider" type="range" min="0.5" max="2.5" step="0.1" value={fontSizeScale} onChange={e => setFontSizeScale(parseFloat(e.target.value))} aria-label="Font size scale" />
+            <span className="slider-label">x{fontSizeScale}</span>
+          </div>
+        </div>
+        <div className="control-row">
+          <label>Show</label>
+          <div className="toggle-group">
+            <button className={displayLanguages.includes('arabic') ? 'active' : ''} onClick={() => toggleDisplayLanguage('arabic')}>Arabic</button>
+            <button className={displayLanguages.includes('english') ? 'active' : ''} onClick={() => toggleDisplayLanguage('english')}>Translation</button>
+          </div>
+        </div>
+        <div className="control-row">
+          <label>Highlight</label>
+          <div className="toggle-group">
+            <button className={highlightArabic ? 'active' : ''} onClick={() => setHighlightArabic(!highlightArabic)}>Arabic {highlightArabic ? '✦' : '○'}</button>
+            <button className={highlightEnglish ? 'active' : ''} onClick={() => setHighlightEnglish(!highlightEnglish)}>Translation {highlightEnglish ? '✦' : '○'}</button>
+          </div>
+        </div>
+        {isQUL && (
+          <div className="highlight-info-note">
+            <Info size={12} />
+            <span>Word-level highlighting is not available with QUL reciters.</span>
+          </div>
+        )}
+        <div className="control-row">
+          <label>Word BG</label>
+          <button className={`toggle-btn ${highlightWordBg ? 'active' : ''}`} onClick={() => setHighlightWordBg(!highlightWordBg)}>{highlightWordBg ? 'On' : 'Off'}</button>
+        </div>
+        <div className="control-row">
+          <label>Backdrop</label>
+          <button className={`toggle-btn ${showTextBackdrop ? 'active' : ''}`} onClick={() => setShowTextBackdrop(!showTextBackdrop)}>{showTextBackdrop ? 'Blur On' : 'Blur Off'}</button>
+        </div>
+      </div>
 
       {/* Background */}
       <div className="settings-section">

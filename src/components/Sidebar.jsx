@@ -2,13 +2,12 @@
 import { memo } from 'react';
 import {
   Layers, BookOpen, Bookmark, Headphones, Settings, X, Menu, Eye,
-  Timer, ListTodo, Type, Paintbrush, LogIn, User
+  Timer, ListTodo, Paintbrush, LogIn, User
 } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import PresetsPanel from './panels/PresetsPanel';
 import QuranPanel from './panels/QuranPanel';
 import BookmarksPanel from './panels/BookmarksPanel';
-import DisplayPanel from './panels/DisplayPanel';
 import StylePanel from './panels/StylePanel';
 import AmbientMixerPanel from './panels/AmbientMixerPanel';
 import SettingsPanel from './panels/SettingsPanel';
@@ -18,7 +17,6 @@ const NAV_ITEMS = [
   { id: 'presets', icon: Layers, label: 'Presets' },
   { id: 'quran', icon: BookOpen, label: 'Quran' },
   { id: 'bookmarks', icon: Bookmark, label: 'Bookmarks' },
-  { id: 'display', icon: Type, label: 'Display' },
   { id: 'style', icon: Paintbrush, label: 'Style' },
   { id: 'mixer', icon: Headphones, label: 'Mixer' },
   { id: 'settings', icon: Settings, label: 'Settings' },
@@ -28,7 +26,6 @@ const PANELS = {
   presets: PresetsPanel,
   quran: QuranPanel,
   bookmarks: BookmarksPanel,
-  display: DisplayPanel,
   style: StylePanel,
   mixer: AmbientMixerPanel,
   settings: SettingsPanel,
