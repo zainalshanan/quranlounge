@@ -67,13 +67,14 @@ export async function getChapterVerses(chapterId, translationId = 131) {
 
 export async function getTranslations() {
   try {
-    const translations = await quranClient.resources.findAllTranslations();
-    return translations
+    const res = await fetch('/api-proxy/content/api/v4/resources/translations');
+    const data = await res.json();
+    return (data.translations || [])
       .map(t => ({
         id: t.id,
-        name: t.translatedName?.name || t.name || 'Unknown',
-        authorName: t.authorName || '',
-        languageName: t.languageName || '',
+        name: t.translated_name?.name || t.name || 'Unknown',
+        authorName: t.author_name || '',
+        languageName: t.language_name || '',
       }))
       .sort((a, b) => a.languageName.localeCompare(b.languageName) || a.name.localeCompare(b.name));
   } catch {
