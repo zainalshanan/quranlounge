@@ -1,52 +1,46 @@
-import { QuranClient } from '@quranjs/api';
-
 /**
- * PRODUCTION-READY PROXY CLIENT
+ * Quran Foundation Content API Client
+ * Direct fetch through /api-proxy (Cloudflare Worker handles auth).
+ * No @quranjs/api library — it was stripping data and crashing on edge cases.
  */
 
-export const quranClient = new QuranClient({
-  contentBaseUrl: "/api-proxy"
-});
+const API = '/api-proxy/content/api/v4';
 
-// We only need to tell the client we are "authenticated" via the proxy
-quranClient.fetcher.getAccessToken = async () => "proxied";
-
-/**
- * Optimized API Wrappers
- */
+async function apiFetch(path) {
+  const res = await fetch(`${API}${path}`);
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  return res.json();
+}
 
 export async function getReciters() {
   try {
-    const recitations = await quranClient.resources.findAllRecitations();
-    
-    return recitations
+    const data = await apiFetch('/resources/recitations');
+    return (data.recitations || [])
       .map(r => {
-        let name = "Unknown Reciter";
-        if (r.reciterName) name = r.reciterName;
-        else if (r.translatedName && typeof r.translatedName.name === 'string') name = r.translatedName.name;
-        
-        const style = r.style || "";
+        let name = r.translated_name?.name || r.reciter_name || 'Unknown Reciter';
+        const style = r.style || '';
         if (style) name = `${name} (${style})`;
-
-        return {
-          id: `qcom:${r.id}`,
-          originalId: r.id,
-          name: name,
-          style: style,
-          source: 'qcom'
-        };
+        return { id: `qcom:${r.id}`, originalId: r.id, name, style, source: 'qcom' };
       })
-      .filter(r => r.name !== "Unknown Reciter")
+      .filter(r => r.name !== 'Unknown Reciter')
       .sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
-    console.error("Reciters fetch failed:", error);
+    console.error('Reciters fetch failed:', error);
     return [];
   }
 }
 
 export async function getChapters() {
   try {
-    return await quranClient.chapters.findAll();
+    const data = await apiFetch('/chapters');
+    return (data.chapters || []).map(c => ({
+      id: c.id,
+      nameSimple: c.name_simple,
+      nameArabic: c.name_arabic,
+      nameComplex: c.name_complex,
+      versesCount: c.verses_count,
+      revelationPlace: c.revelation_place,
+    }));
   } catch {
     return [];
   }
@@ -54,11 +48,20 @@ export async function getChapters() {
 
 export async function getChapterVerses(chapterId, translationId = 131) {
   try {
-    const res = await fetch(`/api-proxy/content/api/v4/verses/by_chapter/${chapterId}?translations=${translationId}&words=true&per_page=300&word_fields=text_uthmani`);
-    const data = await res.json();
+    const data = await apiFetch(`/verses/by_chapter/${chapterId}?translations=${translationId}&words=true&per_page=300&word_fields=text_uthmani`);
     return (data.verses || []).map(v => ({
       ...v,
-      // Preserve verse-level translation (the selected translation like Khattab, Haleem, etc.)
+      // Map word IDs to match existing component expectations
+      words: (v.words || []).map(w => ({
+        ...w,
+        id: w.id,
+        textUthmani: w.text_uthmani,
+        text: w.text,
+        translation: w.translation,
+        transliteration: w.transliteration,
+        charTypeName: w.char_type_name,
+        position: w.position,
+      })),
       translationText: v.translations?.[0]?.text || '',
       translationResourceId: v.translations?.[0]?.resource_id || translationId,
     }));
@@ -69,8 +72,7 @@ export async function getChapterVerses(chapterId, translationId = 131) {
 
 export async function getTranslations() {
   try {
-    const res = await fetch('/api-proxy/content/api/v4/resources/translations');
-    const data = await res.json();
+    const data = await apiFetch('/resources/translations');
     return (data.translations || [])
       .map(t => ({
         id: t.id,
@@ -84,21 +86,17 @@ export async function getTranslations() {
   }
 }
 
-export async function getChapterAudio(chapterId, reciterId = "qcom:7") {
+export async function getChapterAudio(chapterId, reciterId = 'qcom:7') {
   try {
-    const [, id] = typeof reciterId === 'string' && reciterId.includes(':') 
-      ? reciterId.split(':') 
+    const [, id] = typeof reciterId === 'string' && reciterId.includes(':')
+      ? reciterId.split(':')
       : ['qcom', reciterId];
 
-    const response = await quranClient.audio.findVerseRecitationsByChapter(
-      chapterId.toString(),
-      id.toString(),
-      { fields: { segments: true, format: true, id: true } }
-    );
-
-    const files = response.audioFiles || [];
+    const data = await apiFetch(`/recitations/${id}/by_chapter/${chapterId}?fields=segments,format,id`);
+    const files = data.audio_files || [];
 
     return files.map(file => {
+      // Normalize segment format: [verseKey, verseKey, startMs, endMs]
       if (file.segments) {
         file.segments = file.segments.map(s => {
           if (s.length === 4) {
@@ -111,7 +109,7 @@ export async function getChapterAudio(chapterId, reciterId = "qcom:7") {
       return file;
     });
   } catch (error) {
-    console.error("[Audio Fetch Error]", error);
+    console.error('[Audio Fetch Error]', error);
     return [];
   }
 }
