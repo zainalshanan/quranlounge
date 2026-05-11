@@ -192,6 +192,9 @@ const createSettingsSlice = (set, get) => ({
   fontSizeScale: loadFromStorage('fontSizeScale', 1.0),
   setFontSizeScale: (scale) => { saveToStorage('fontSizeScale', scale); set({ fontSizeScale: scale }); },
 
+  verseLayout: loadFromStorage('verseLayout', 'stacked'),
+  setVerseLayout: (layout) => { saveToStorage('verseLayout', layout); set({ verseLayout: layout }); },
+
   translationId: loadFromStorage('translationId', 131),
   setTranslationId: (id) => {
     saveToStorage('translationId', id);

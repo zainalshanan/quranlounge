@@ -5,7 +5,6 @@ import { useShallow } from 'zustand/react/shallow';
 import './VerseDisplay.css';
 
 // ─── Memoized Word Component ───
-// Prevents entire verse re-render when only one word highlights
 const QuranWord = memo(({ word, isActive, highlightWordBg, highlightColor, highlightGlow }) => {
   return (
     <span
@@ -27,8 +26,22 @@ const EnglishWord = memo(({ word, isActive, highlightWordBg, highlightColor, hig
   );
 });
 
+// Word-by-word: Arabic word with its translation directly below
+const WordPair = memo(({ word, isActive, highlightWordBg, highlightColor, highlightGlow, englishColor }) => {
+  return (
+    <span
+      className={`word-pair ${isActive ? 'active-word' : ''} ${isActive && highlightWordBg ? 'active-word-bg' : ''}`}
+      style={isActive ? { color: highlightColor, textShadow: highlightGlow } : undefined}
+    >
+      <span className="wp-arabic" dangerouslySetInnerHTML={{ __html: word.textUthmani || word.text }} />
+      {word.translation?.text && (
+        <span className="wp-translation" style={{ color: isActive ? highlightColor : englishColor }} dangerouslySetInnerHTML={{ __html: word.translation.text }} />
+      )}
+    </span>
+  );
+});
+
 export default function VerseDisplay() {
-  // Optimized selectors using shallow to prevent re-renders on stable object changes
   const {
     verses,
     currentVerseIndex,
@@ -42,6 +55,7 @@ export default function VerseDisplay() {
     isLoadingChapter,
     activeTextStyle,
     customTextStyle,
+    verseLayout,
   } = usePlayerStore(useShallow(s => ({
     verses: s.verses,
     currentVerseIndex: s.currentVerseIndex,
@@ -55,9 +69,12 @@ export default function VerseDisplay() {
     isLoadingChapter: s.isLoadingChapter,
     activeTextStyle: s.activeTextStyle,
     customTextStyle: s.customTextStyle,
+    verseLayout: s.verseLayout,
   })));
 
   const containerRef = useRef(null);
+  const showArabic = displayLanguages.includes('arabic');
+  const showTranslation = displayLanguages.includes('english');
 
   // Reset scroll on verse change
   useEffect(() => {
@@ -67,8 +84,6 @@ export default function VerseDisplay() {
   }, [currentVerseIndex]);
 
   // Auto-scroll to keep active word visible for hands-free study.
-  // Uses 'nearest' instead of 'center' so it only scrolls when the word
-  // is actually out of view — won't aggressively hide the translation.
   useEffect(() => {
     if (activeWordIds.length > 0 && containerRef.current) {
       const activeElement = containerRef.current.querySelector('.active-word');
@@ -106,46 +121,107 @@ export default function VerseDisplay() {
     );
   }
 
+  // ─── Layout Renderers ───
+
+  const renderStacked = () => (
+    <div className="verse-content">
+      {showArabic && (
+        <div className="verse-arabic" style={arabicStyle}>
+          {currentVerse.words?.map((word) => (
+            <QuranWord
+              key={word.id}
+              word={word}
+              isActive={highlightArabic && activeWordIds.includes(word.id)}
+              highlightWordBg={highlightWordBg}
+              highlightColor={ts.highlightColor}
+              highlightGlow={ts.highlightGlow}
+            />
+          ))}
+        </div>
+      )}
+      {showTranslation && (
+        <div className="verse-english" style={englishStyle}>
+          {currentVerse.words?.map((word, idx) => (
+            <EnglishWord
+              key={`en-${word.id}-${idx}`}
+              word={word}
+              isActive={highlightEnglish && activeWordIds.includes(word.id)}
+              highlightWordBg={highlightWordBg}
+              highlightColor={ts.highlightColor}
+              highlightGlow={ts.highlightGlow}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSideBySide = () => (
+    <div className="verse-content verse-side-by-side">
+      {showArabic && (
+        <div className="verse-arabic verse-side" style={arabicStyle}>
+          {currentVerse.words?.map((word) => (
+            <QuranWord
+              key={word.id}
+              word={word}
+              isActive={highlightArabic && activeWordIds.includes(word.id)}
+              highlightWordBg={highlightWordBg}
+              highlightColor={ts.highlightColor}
+              highlightGlow={ts.highlightGlow}
+            />
+          ))}
+        </div>
+      )}
+      {showTranslation && (
+        <div className="verse-english verse-side" style={englishStyle}>
+          {currentVerse.words?.map((word, idx) => (
+            <EnglishWord
+              key={`en-${word.id}-${idx}`}
+              word={word}
+              isActive={highlightEnglish && activeWordIds.includes(word.id)}
+              highlightWordBg={highlightWordBg}
+              highlightColor={ts.highlightColor}
+              highlightGlow={ts.highlightGlow}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderWordByWord = () => (
+    <div className="verse-content verse-word-by-word" style={{ direction: 'rtl' }}>
+      {currentVerse.words?.map((word, idx) => (
+        <WordPair
+          key={`wbw-${word.id}-${idx}`}
+          word={word}
+          isActive={(highlightArabic || highlightEnglish) && activeWordIds.includes(word.id)}
+          highlightWordBg={highlightWordBg}
+          highlightColor={ts.highlightColor}
+          highlightGlow={ts.highlightGlow}
+          englishColor={ts.englishColor}
+        />
+      ))}
+    </div>
+  );
+
+  const layoutRenderer = {
+    stacked: renderStacked,
+    sideBySide: renderSideBySide,
+    wordByWord: renderWordByWord,
+  };
+
   return (
     <div ref={containerRef} className={`verse-display-container ${showTextBackdrop ? '' : 'no-backdrop'}`} role="region" aria-label="Quran verse display" aria-live="polite">
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentVerseIndex}
+          key={`${currentVerseIndex}-${verseLayout}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="verse-content"
         >
-          {displayLanguages.includes('arabic') && (
-            <div className="verse-arabic" style={arabicStyle}>
-              {currentVerse.words?.map((word) => (
-                <QuranWord 
-                  key={word.id} 
-                  word={word} 
-                  isActive={highlightArabic && activeWordIds.includes(word.id)}
-                  highlightWordBg={highlightWordBg}
-                  highlightColor={ts.highlightColor}
-                  highlightGlow={ts.highlightGlow}
-                />
-              ))}
-            </div>
-          )}
-
-          {displayLanguages.includes('english') && (
-            <div className="verse-english" style={englishStyle}>
-              {currentVerse.words?.map((word, idx) => (
-                <EnglishWord 
-                  key={`en-${word.id}-${idx}`} 
-                  word={word} 
-                  isActive={highlightEnglish && activeWordIds.includes(word.id)}
-                  highlightWordBg={highlightWordBg}
-                  highlightColor={ts.highlightColor}
-                  highlightGlow={ts.highlightGlow}
-                />
-              ))}
-            </div>
-          )}
+          {(layoutRenderer[verseLayout] || renderStacked)()}
         </motion.div>
       </AnimatePresence>
     </div>

@@ -46,6 +46,8 @@ export default function StylePanel() {
   const setShowTextBackdrop = usePlayerStore(s => s.setShowTextBackdrop);
   const fontSizeScale = usePlayerStore(s => s.fontSizeScale);
   const setFontSizeScale = usePlayerStore(s => s.setFontSizeScale);
+  const verseLayout = usePlayerStore(s => s.verseLayout);
+  const setVerseLayout = usePlayerStore(s => s.setVerseLayout);
   const reciterId = usePlayerStore(s => s.reciterId);
   const isQUL = typeof reciterId === 'string' && reciterId.startsWith('local:');
 
@@ -59,6 +61,14 @@ export default function StylePanel() {
       {/* Text Display */}
       <div className="settings-section">
         <label className="section-label">Text</label>
+        <div className="control-row">
+          <label>Layout</label>
+          <div className="segmented-control">
+            <button className={verseLayout === 'stacked' ? 'active' : ''} onClick={() => setVerseLayout('stacked')}>Stacked</button>
+            <button className={verseLayout === 'sideBySide' ? 'active' : ''} onClick={() => setVerseLayout('sideBySide')}>Side by Side</button>
+            <button className={verseLayout === 'wordByWord' ? 'active' : ''} onClick={() => setVerseLayout('wordByWord')}>Word by Word</button>
+          </div>
+        </div>
         <div className="control-row">
           <label htmlFor="font-size-slider">Font Size</label>
           <div className="slider-row">
