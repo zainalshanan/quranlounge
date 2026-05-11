@@ -2,7 +2,7 @@
 import { memo } from 'react';
 import {
   Layers, BookOpen, Bookmark, Headphones, Settings, X, Menu, Eye,
-  Timer, ListTodo, Type, Paintbrush
+  Timer, ListTodo, Type, Paintbrush, LogIn, User
 } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import PresetsPanel from './panels/PresetsPanel';
@@ -44,6 +44,8 @@ function Sidebar() {
   const setFloatingPomodoro = usePlayerStore(s => s.setFloatingPomodoro);
   const floatingTodo = usePlayerStore(s => s.floatingTodo);
   const setFloatingTodo = usePlayerStore(s => s.setFloatingTodo);
+  const isAuthenticated = usePlayerStore(s => s.isAuthenticated);
+  const login = usePlayerStore(s => s.login);
 
   const ActivePanel = PANELS[activeSidebarPanel] || PresetsPanel;
 
@@ -87,6 +89,26 @@ function Sidebar() {
           </div>
 
           <div className="rail-bottom">
+            {!isAuthenticated && (
+              <button
+                className="rail-btn small rail-login"
+                onClick={login}
+                title="Sign in with Quran.com"
+                aria-label="Sign in with Quran.com"
+              >
+                <LogIn size={16} />
+              </button>
+            )}
+            {isAuthenticated && (
+              <button
+                className="rail-btn small active"
+                onClick={() => handleNavClick('settings')}
+                title="Account"
+                aria-label="Account settings"
+              >
+                <User size={16} />
+              </button>
+            )}
             <button
               className={`rail-btn small ${floatingPomodoro ? 'active' : ''}`}
               onClick={() => setFloatingPomodoro(!floatingPomodoro)}

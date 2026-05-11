@@ -1608,3 +1608,8 @@
   background: rgba(255, 255, 255, 0.1);
   color: var(--theme-text, #fff);
 }
+
+/* Login button in rail */
+.rail-login {
+  color: var(--theme-accent, #34d399) !important;
+}
