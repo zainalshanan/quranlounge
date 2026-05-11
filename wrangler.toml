@@ -8,6 +8,8 @@ directory = "./dist"
 
 [vars]
 NPM_FLAGS = "--no-package-lock"
+# For local dev only — production values are set via `wrangler pages secret put`
+# QURAN_CLIENT_ID and QURAN_CLIENT_SECRET must be set as Cloudflare Pages secrets
 
 # KV Namespace binding for token and data caching
 [[kv_namespaces]]

@@ -26,17 +26,17 @@ export default function FloatingTodo() {
     >
       <div className="fw-header">
         <span className="fw-title">Tasks {todos.length > 0 ? `(${completedCount}/${todos.length})` : ''}</span>
-        <button className="fw-close" onClick={() => setFloatingTodo(false)}><X size={14} /></button>
+        <button className="fw-close" onClick={() => setFloatingTodo(false)} aria-label="Close floating tasks"><X size={14} /></button>
       </div>
 
       <div className="fw-todo-list">
         {todos.map(todo => (
           <div key={todo.id} className={`fw-todo-item ${todo.completed ? 'done' : ''}`}>
-            <button onClick={() => toggleTodo(todo.id)}>
+            <button onClick={() => toggleTodo(todo.id)} aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}>
               {todo.completed ? <CheckCircle size={16} /> : <Circle size={16} />}
             </button>
             <span>{todo.text}</span>
-            <button className="fw-todo-del" onClick={() => deleteTodo(todo.id)}>
+            <button className="fw-todo-del" onClick={() => deleteTodo(todo.id)} aria-label="Delete task">
               <Trash2 size={12} />
             </button>
           </div>
@@ -50,7 +50,7 @@ export default function FloatingTodo() {
           value={newTask}
           onChange={e => setNewTask(e.target.value)}
         />
-        <button type="submit" disabled={!newTask.trim()}><Plus size={14} /></button>
+        <button type="submit" disabled={!newTask.trim()} aria-label="Add task"><Plus size={14} /></button>
       </form>
     </motion.div>
   );

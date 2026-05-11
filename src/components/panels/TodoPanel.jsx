@@ -36,11 +36,11 @@ export default function TodoPanel() {
       <div className="todo-list">
         {todos.map(todo => (
           <div key={todo.id} className={`todo-item ${todo.completed ? 'completed' : ''}`}>
-            <button className="todo-check" onClick={() => toggleTodo(todo.id)}>
+            <button className="todo-check" onClick={() => toggleTodo(todo.id)} aria-label={todo.completed ? 'Mark incomplete' : 'Mark complete'}>
               {todo.completed ? <CheckCircle size={18} /> : <Circle size={18} />}
             </button>
             <span className="todo-text">{todo.text}</span>
-            <button className="todo-delete" onClick={() => deleteTodo(todo.id)}>
+            <button className="todo-delete" onClick={() => deleteTodo(todo.id)} aria-label="Delete task">
               <Trash2 size={14} />
             </button>
           </div>
@@ -55,7 +55,7 @@ export default function TodoPanel() {
           value={newTask}
           onChange={e => setNewTask(e.target.value)}
         />
-        <button type="submit" disabled={!newTask.trim()}>
+        <button type="submit" disabled={!newTask.trim()} aria-label="Add task">
           <Plus size={16} />
         </button>
       </form>

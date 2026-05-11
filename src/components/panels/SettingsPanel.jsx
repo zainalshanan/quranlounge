@@ -1,8 +1,12 @@
 import { usePlayerStore } from '../../store/usePlayerStore';
-import { Moon, Maximize, Clock, Eye, Timer, ListTodo, ExternalLink } from 'lucide-react';
+import { Moon, Maximize, Clock, Eye, Timer, ListTodo, ExternalLink, LogIn, LogOut, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SettingsPanel() {
+  const isAuthenticated = usePlayerStore(s => s.isAuthenticated);
+  const userInfo = usePlayerStore(s => s.userInfo);
+  const login = usePlayerStore(s => s.login);
+  const logout = usePlayerStore(s => s.logout);
   const showClock = usePlayerStore(s => s.showClock);
   const setShowClock = usePlayerStore(s => s.setShowClock);
   const clockFormat = usePlayerStore(s => s.clockFormat);
@@ -32,25 +36,45 @@ export default function SettingsPanel() {
     <div className="panel-content">
       <h3 className="panel-title">Settings</h3>
 
+      {/* Account */}
+      <div className="settings-section">
+        <label className="section-label"><User size={14} /> Account</label>
+        {isAuthenticated ? (
+          <div className="settings-toggles">
+            <div className="setting-row">
+              <span>{userInfo?.name || userInfo?.email || 'Signed in'}</span>
+              <button className="sleep-btn active" onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <LogOut size={12} /> Sign Out
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button className="fullscreen-btn" onClick={login} style={{ width: '100%' }}>
+            <LogIn size={14} />
+            Sign in with Quran.com
+          </button>
+        )}
+      </div>
+
       {/* Widgets */}
       <div className="settings-section">
         <label className="section-label">General</label>
         <div className="settings-toggles">
           <div className="setting-row">
             <span><Timer size={14} /> Floating Timer</span>
-            <button className={`toggle-pill ${floatingPomodoro ? 'on' : ''}`} onClick={() => setFloatingPomodoro(!floatingPomodoro)}>
+            <button className={`toggle-pill ${floatingPomodoro ? 'on' : ''}`} onClick={() => setFloatingPomodoro(!floatingPomodoro)} aria-label="Toggle floating timer">
               <span className="pill-knob" />
             </button>
           </div>
           <div className="setting-row">
             <span><ListTodo size={14} /> Floating Tasks</span>
-            <button className={`toggle-pill ${floatingTodo ? 'on' : ''}`} onClick={() => setFloatingTodo(!floatingTodo)}>
+            <button className={`toggle-pill ${floatingTodo ? 'on' : ''}`} onClick={() => setFloatingTodo(!floatingTodo)} aria-label="Toggle floating tasks">
               <span className="pill-knob" />
             </button>
           </div>
           <div className="setting-row">
             <span><Eye size={14} /> Zen Mode</span>
-            <button className={`toggle-pill ${zenMode ? 'on' : ''}`} onClick={toggleZenMode}>
+            <button className={`toggle-pill ${zenMode ? 'on' : ''}`} onClick={toggleZenMode} aria-label="Toggle zen mode">
               <span className="pill-knob" />
             </button>
           </div>
@@ -58,7 +82,7 @@ export default function SettingsPanel() {
             <span title="Reduces CPU/GPU usage by lowering background resolution and particle counts.">
               <Moon size={14} /> Low Power Mode
             </span>
-            <button className={`toggle-pill ${performanceMode ? 'on' : ''}`} onClick={() => setPerformanceMode(!performanceMode)}>
+            <button className={`toggle-pill ${performanceMode ? 'on' : ''}`} onClick={() => setPerformanceMode(!performanceMode)} aria-label="Toggle low power mode">
               <span className="pill-knob" />
             </button>
           </div>
@@ -71,25 +95,25 @@ export default function SettingsPanel() {
         <div className="settings-toggles">
           <div className="setting-row">
             <span>Show Clock</span>
-            <button className={`toggle-pill ${showClock ? 'on' : ''}`} onClick={() => setShowClock(!showClock)}>
+            <button className={`toggle-pill ${showClock ? 'on' : ''}`} onClick={() => setShowClock(!showClock)} aria-label="Toggle show clock">
               <span className="pill-knob" />
             </button>
           </div>
           <div className="setting-row">
             <span>24h Format</span>
-            <button className={`toggle-pill ${clockFormat === '24' ? 'on' : ''}`} onClick={() => setClockFormat(clockFormat === '12' ? '24' : '12')}>
+            <button className={`toggle-pill ${clockFormat === '24' ? 'on' : ''}`} onClick={() => setClockFormat(clockFormat === '12' ? '24' : '12')} aria-label="Toggle 24-hour format">
               <span className="pill-knob" />
             </button>
           </div>
           <div className="setting-row">
             <span>Show Date</span>
-            <button className={`toggle-pill ${showDate ? 'on' : ''}`} onClick={() => setShowDate(!showDate)}>
+            <button className={`toggle-pill ${showDate ? 'on' : ''}`} onClick={() => setShowDate(!showDate)} aria-label="Toggle show date">
               <span className="pill-knob" />
             </button>
           </div>
           <div className="setting-row">
             <span>Show Seconds</span>
-            <button className={`toggle-pill ${showSeconds ? 'on' : ''}`} onClick={() => setShowSeconds(!showSeconds)}>
+            <button className={`toggle-pill ${showSeconds ? 'on' : ''}`} onClick={() => setShowSeconds(!showSeconds)} aria-label="Toggle show seconds">
               <span className="pill-knob" />
             </button>
           </div>
@@ -118,7 +142,12 @@ export default function SettingsPanel() {
         <label className="section-label"><Moon size={14} /> Sleep Timer</label>
         <div className="sleep-timer-options">
           {[0, 15, 30, 45, 60, 90].map(min => (
-            <button key={min} className={`sleep-btn ${sleepTimerMinutes === min ? 'active' : ''}`} onClick={() => setSleepTimer(min)}>
+            <button
+              key={min}
+              className={`sleep-btn ${sleepTimerMinutes === min ? 'active' : ''}`}
+              onClick={() => setSleepTimer(min)}
+              aria-label={min === 0 ? 'Disable sleep timer' : `Set sleep timer to ${min} minutes`}
+            >
               {min === 0 ? 'Off' : `${min}m`}
             </button>
           ))}

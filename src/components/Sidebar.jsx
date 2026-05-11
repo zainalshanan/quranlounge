@@ -1,12 +1,13 @@
 // Sidebar component — performance-optimised
 import { memo } from 'react';
 import {
-  Layers, BookOpen, Headphones, Settings, X, Menu, Eye,
+  Layers, BookOpen, Bookmark, Headphones, Settings, X, Menu, Eye,
   Timer, ListTodo, Type, Paintbrush
 } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import PresetsPanel from './panels/PresetsPanel';
 import QuranPanel from './panels/QuranPanel';
+import BookmarksPanel from './panels/BookmarksPanel';
 import DisplayPanel from './panels/DisplayPanel';
 import StylePanel from './panels/StylePanel';
 import AmbientMixerPanel from './panels/AmbientMixerPanel';
@@ -16,6 +17,7 @@ import './Sidebar.css';
 const NAV_ITEMS = [
   { id: 'presets', icon: Layers, label: 'Presets' },
   { id: 'quran', icon: BookOpen, label: 'Quran' },
+  { id: 'bookmarks', icon: Bookmark, label: 'Bookmarks' },
   { id: 'display', icon: Type, label: 'Display' },
   { id: 'style', icon: Paintbrush, label: 'Style' },
   { id: 'mixer', icon: Headphones, label: 'Mixer' },
@@ -25,6 +27,7 @@ const NAV_ITEMS = [
 const PANELS = {
   presets: PresetsPanel,
   quran: QuranPanel,
+  bookmarks: BookmarksPanel,
   display: DisplayPanel,
   style: StylePanel,
   mixer: AmbientMixerPanel,
@@ -55,7 +58,7 @@ function Sidebar() {
   return (
     <>
       {/* Mobile toggle */}
-      <button className="sidebar-mobile-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+      <button className="sidebar-mobile-toggle" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Open menu">
         <Menu size={20} />
       </button>
 
@@ -63,7 +66,7 @@ function Sidebar() {
         {/* Icon rail */}
         <nav className="sidebar-rail">
           <div className="rail-top">
-            <button className="rail-brand" onClick={() => setSidebarOpen(!sidebarOpen)}>
+            <button className="rail-brand" onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle sidebar">
               <span className="brand-icon">☪</span>
             </button>
             {NAV_ITEMS.map(item => {
@@ -74,6 +77,7 @@ function Sidebar() {
                   className={`rail-btn ${activeSidebarPanel === item.id && sidebarOpen ? 'active' : ''}`}
                   onClick={() => handleNavClick(item.id)}
                   title={item.label}
+                  aria-label={item.label}
                 >
                   <Icon size={18} />
                   <span className="rail-label">{item.label}</span>
@@ -87,6 +91,7 @@ function Sidebar() {
               className={`rail-btn small ${floatingPomodoro ? 'active' : ''}`}
               onClick={() => setFloatingPomodoro(!floatingPomodoro)}
               title="Float Timer"
+              aria-label="Toggle floating timer"
             >
               <Timer size={16} />
             </button>
@@ -94,6 +99,7 @@ function Sidebar() {
               className={`rail-btn small ${floatingTodo ? 'active' : ''}`}
               onClick={() => setFloatingTodo(!floatingTodo)}
               title="Float Tasks"
+              aria-label="Toggle floating tasks"
             >
               <ListTodo size={16} />
             </button>
@@ -101,6 +107,7 @@ function Sidebar() {
               className="rail-btn zen-btn"
               onClick={toggleZenMode}
               title="Zen Mode (Z)"
+              aria-label="Toggle zen mode"
             >
               <Eye size={18} />
               <span className="rail-label">Zen</span>
@@ -111,7 +118,7 @@ function Sidebar() {
         {/* Panel area — CSS transition */}
         <div className={`sidebar-panel ${sidebarOpen ? 'panel-open' : ''}`}>
           <div className="sidebar-panel-inner">
-            <button className="panel-close" onClick={() => setSidebarOpen(false)}>
+            <button className="panel-close" onClick={() => setSidebarOpen(false)} aria-label="Close panel">
               <X size={16} />
             </button>
             <ActivePanel />

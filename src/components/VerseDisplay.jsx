@@ -1,5 +1,6 @@
-import { useRef, useEffect, memo } from 'react';
+import { useRef, useEffect, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Bookmark } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useShallow } from 'zustand/react/shallow';
 import './VerseDisplay.css';
@@ -29,10 +30,11 @@ const EnglishWord = memo(({ word, isActive, highlightWordBg, highlightColor, hig
 
 export default function VerseDisplay() {
   // Optimized selectors using shallow to prevent re-renders on stable object changes
-  const { 
-    verses, 
-    currentVerseIndex, 
-    activeWordIds, 
+  const {
+    verses,
+    currentVerseIndex,
+    currentChapterId,
+    activeWordIds,
     displayLanguages,
     highlightArabic,
     highlightEnglish,
@@ -41,10 +43,14 @@ export default function VerseDisplay() {
     fontSizeScale,
     isLoadingChapter,
     activeTextStyle,
-    customTextStyle
+    customTextStyle,
+    bookmarks,
+    addBookmark,
+    removeBookmark,
   } = usePlayerStore(useShallow(s => ({
     verses: s.verses,
     currentVerseIndex: s.currentVerseIndex,
+    currentChapterId: s.currentChapterId,
     activeWordIds: s.activeWordIds,
     displayLanguages: s.displayLanguages,
     highlightArabic: s.highlightArabic,
@@ -54,7 +60,10 @@ export default function VerseDisplay() {
     fontSizeScale: s.fontSizeScale,
     isLoadingChapter: s.isLoadingChapter,
     activeTextStyle: s.activeTextStyle,
-    customTextStyle: s.customTextStyle
+    customTextStyle: s.customTextStyle,
+    bookmarks: s.bookmarks,
+    addBookmark: s.addBookmark,
+    removeBookmark: s.removeBookmark,
   })));
 
   const containerRef = useRef(null);
@@ -70,6 +79,17 @@ export default function VerseDisplay() {
 
   const currentVerse = verses[currentVerseIndex];
   const ts = customTextStyle || activeTextStyle;
+  const verseKey = currentVerse ? `${currentChapterId}:${currentVerseIndex + 1}` : null;
+  const isCurrentBookmarked = verseKey ? bookmarks.some(b => b.verseKey === verseKey) : false;
+
+  const handleBookmarkToggle = useCallback(() => {
+    if (!verseKey) return;
+    if (isCurrentBookmarked) {
+      removeBookmark(verseKey);
+    } else {
+      addBookmark(verseKey);
+    }
+  }, [verseKey, isCurrentBookmarked, addBookmark, removeBookmark]);
 
   const arabicStyle = {
     fontSize: fontSizeScale !== 1 ? `calc(clamp(1.8rem, 4vw + 1rem, 3.5rem) * ${fontSizeScale})` : undefined,
@@ -97,7 +117,17 @@ export default function VerseDisplay() {
   }
 
   return (
-    <div ref={containerRef} className={`verse-display-container ${showTextBackdrop ? '' : 'no-backdrop'}`}>
+    <div ref={containerRef} className={`verse-display-container ${showTextBackdrop ? '' : 'no-backdrop'}`} role="region" aria-label="Quran verse display" aria-live="polite">
+      {verseKey && (
+        <button
+          className={`verse-bookmark-btn ${isCurrentBookmarked ? 'bookmarked' : ''}`}
+          onClick={handleBookmarkToggle}
+          aria-label={isCurrentBookmarked ? 'Remove bookmark' : 'Bookmark this verse'}
+          title={isCurrentBookmarked ? 'Remove bookmark' : 'Bookmark verse'}
+        >
+          <Bookmark size={18} fill={isCurrentBookmarked ? 'currentColor' : 'none'} />
+        </button>
+      )}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentVerseIndex}

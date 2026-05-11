@@ -83,10 +83,10 @@ export default function PomodoroPanel() {
 
       {/* Controls */}
       <div className="pomo-actions">
-        <button className="pomo-btn" onClick={() => setIsActive(!isActive)}>
+        <button className="pomo-btn" onClick={() => setIsActive(!isActive)} aria-label={isActive ? 'Pause timer' : 'Start timer'}>
           {isActive ? <Pause size={18} /> : <Play size={18} />}
         </button>
-        <button className="pomo-btn secondary" onClick={reset}>
+        <button className="pomo-btn secondary" onClick={reset} aria-label="Reset timer">
           <RotateCcw size={16} />
         </button>
       </div>
@@ -96,25 +96,25 @@ export default function PomodoroPanel() {
         <div className="config-item">
           <span>Work</span>
           <div className="stepper">
-            <button onClick={() => setPomodoroWorkMin(Math.max(5, pomodoroWorkMin - 5))}><ChevronDown size={14} /></button>
+            <button onClick={() => setPomodoroWorkMin(Math.max(5, pomodoroWorkMin - 5))} aria-label="Decrease work time"><ChevronDown size={14} /></button>
             <span>{pomodoroWorkMin}m</span>
-            <button onClick={() => setPomodoroWorkMin(Math.min(60, pomodoroWorkMin + 5))}><ChevronUp size={14} /></button>
+            <button onClick={() => setPomodoroWorkMin(Math.min(60, pomodoroWorkMin + 5))} aria-label="Increase work time"><ChevronUp size={14} /></button>
           </div>
         </div>
         <div className="config-item">
           <span>Break</span>
           <div className="stepper">
-            <button onClick={() => setPomodoroBreakMin(Math.max(1, pomodoroBreakMin - 1))}><ChevronDown size={14} /></button>
+            <button onClick={() => setPomodoroBreakMin(Math.max(1, pomodoroBreakMin - 1))} aria-label="Decrease break time"><ChevronDown size={14} /></button>
             <span>{pomodoroBreakMin}m</span>
-            <button onClick={() => setPomodoroBreakMin(Math.min(30, pomodoroBreakMin + 1))}><ChevronUp size={14} /></button>
+            <button onClick={() => setPomodoroBreakMin(Math.min(30, pomodoroBreakMin + 1))} aria-label="Increase break time"><ChevronUp size={14} /></button>
           </div>
         </div>
         <div className="config-item">
           <span>Sessions</span>
           <div className="stepper">
-            <button onClick={() => setPomodoroSessions(Math.max(1, pomodoroSessions - 1))}><ChevronDown size={14} /></button>
+            <button onClick={() => setPomodoroSessions(Math.max(1, pomodoroSessions - 1))} aria-label="Decrease session count"><ChevronDown size={14} /></button>
             <span>{pomodoroSessions}</span>
-            <button onClick={() => setPomodoroSessions(Math.min(10, pomodoroSessions + 1))}><ChevronUp size={14} /></button>
+            <button onClick={() => setPomodoroSessions(Math.min(10, pomodoroSessions + 1))} aria-label="Increase session count"><ChevronUp size={14} /></button>
           </div>
         </div>
       </div>

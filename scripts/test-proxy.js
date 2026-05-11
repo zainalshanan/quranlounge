@@ -1,9 +1,14 @@
 const axios = require('axios');
 
-const CLIENT_ID = "02b6a41f-d00a-475d-beae-82d5185d6907";
-const CLIENT_SECRET = "QaYhiKIibWpADvYztiAt.ebmIY";
+const CLIENT_ID = process.env.QURAN_CLIENT_ID;
+const CLIENT_SECRET = process.env.QURAN_CLIENT_SECRET;
 const AUTH_ENDPOINT = "https://oauth2.quran.foundation";
 const API_BASE = "https://apis.quran.foundation";
+
+if (!CLIENT_ID || !CLIENT_SECRET) {
+  console.error("Set QURAN_CLIENT_ID and QURAN_CLIENT_SECRET environment variables");
+  process.exit(1);
+}
 
 async function testAuthAndApi() {
   console.log("1. Testing Token Acquisition...");

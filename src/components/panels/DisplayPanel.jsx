@@ -21,16 +21,18 @@ export default function DisplayPanel() {
 
       {/* Font Size Scale */}
       <div className="control-row">
-        <label>Font Size</label>
+        <label htmlFor="font-size-slider">Font Size</label>
         <div className="slider-row">
           <span className="slider-label">A</span>
           <input
+            id="font-size-slider"
             type="range"
             min="0.5"
             max="2.5"
             step="0.1"
             value={usePlayerStore(s => s.fontSizeScale)}
             onChange={e => usePlayerStore.getState().setFontSizeScale(parseFloat(e.target.value))}
+            aria-label="Font size scale"
           />
           <span className="slider-label">x{usePlayerStore(s => s.fontSizeScale)}</span>
         </div>

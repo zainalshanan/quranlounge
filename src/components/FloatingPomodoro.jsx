@@ -60,7 +60,7 @@ export default function FloatingPomodoro() {
     >
       <div className="fw-header">
         <span className="fw-title">{isWork ? 'Focus' : 'Break'} · {currentSession}/{pomodoroSessions}</span>
-        <button className="fw-close" onClick={() => setFloatingPomodoro(false)}><X size={14} /></button>
+        <button className="fw-close" onClick={() => setFloatingPomodoro(false)} aria-label="Close floating timer"><X size={14} /></button>
       </div>
       <div className="fw-pomo-display">
         <span className="fw-pomo-time">{String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}</span>
@@ -69,10 +69,10 @@ export default function FloatingPomodoro() {
         <div className="fw-pomo-fill" style={{ width: `${progress}%` }} />
       </div>
       <div className="fw-pomo-controls">
-        <button onClick={() => setIsActive(!isActive)}>
+        <button onClick={() => setIsActive(!isActive)} aria-label={isActive ? 'Pause timer' : 'Start timer'}>
           {isActive ? <Pause size={14} /> : <Play size={14} />}
         </button>
-        <button onClick={reset}><RotateCcw size={14} /></button>
+        <button onClick={reset} aria-label="Reset timer"><RotateCcw size={14} /></button>
       </div>
     </motion.div>
   );

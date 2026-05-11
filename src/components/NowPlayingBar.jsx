@@ -32,7 +32,7 @@ export default function NowPlayingBar() {
   // Minimized state — show just a thin strip to bring it back
   if (!showBottomBar) {
     return (
-      <button className="npb-minimized" onClick={() => setShowBottomBar(true)} title="Show Player">
+      <button className="npb-minimized" onClick={() => setShowBottomBar(true)} title="Show Player" aria-label="Show player">
         <ChevronUp size={16} />
       </button>
     );
@@ -51,13 +51,13 @@ export default function NowPlayingBar() {
       {/* Center: Playback Controls */}
       <div className="npb-center">
         <div className="npb-controls">
-          <button className="npb-btn" onClick={skipPrev} title="Previous Surah">
+          <button className="npb-btn" onClick={skipPrev} title="Previous Surah" aria-label="Previous surah">
             <SkipBack size={15} />
           </button>
-          <button className="npb-play" onClick={() => setIsPlaying(!isPlaying)}>
+          <button className="npb-play" onClick={() => setIsPlaying(!isPlaying)} aria-label={isPlaying ? 'Pause' : 'Play'}>
             {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
           </button>
-          <button className="npb-btn" onClick={skipNext} title="Next Surah">
+          <button className="npb-btn" onClick={skipNext} title="Next Surah" aria-label="Next surah">
             <SkipForward size={15} />
           </button>
         </div>
@@ -84,22 +84,25 @@ export default function NowPlayingBar() {
           className={`npb-btn loop-btn ${loopMode !== 'none' ? 'active' : ''}`}
           onClick={cycleLoop}
           title={`Loop: ${loopMode}`}
+          aria-label={loopMode === 'none' ? 'Loop off' : loopMode === 'surah' ? 'Loop surah' : 'Loop verse'}
         >
           {loopMode === 'verse' ? <Repeat1 size={16} /> : <Repeat size={16} />}
         </button>
         <div className="npb-volume">
-          <Volume2 size={16} />
+          <Volume2 size={16} aria-hidden="true" />
           <input
             type="range"
             min="0" max="1" step="0.01"
             value={masterVolume}
             onChange={e => setMasterVolume(parseFloat(e.target.value))}
+            aria-label="Master volume"
           />
         </div>
         <button
           className="npb-btn shortcut-toggle"
           onClick={() => setShowShortcuts(!showShortcuts)}
           title={showShortcuts ? 'Hide Shortcuts' : 'Show Shortcuts'}
+          aria-label={showShortcuts ? 'Hide shortcuts' : 'Show shortcuts'}
         >
           <Keyboard size={14} />
         </button>
@@ -107,6 +110,7 @@ export default function NowPlayingBar() {
           className="npb-btn minimize-btn"
           onClick={() => setShowBottomBar(false)}
           title="Minimize Player"
+          aria-label="Minimize player"
         >
           <ChevronDown size={14} />
         </button>

@@ -47,9 +47,10 @@ export default function QuranPanel() {
           placeholder="Search surah by name or number..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
+          aria-label="Search surahs"
         />
         {searchQuery && (
-          <button type="button" className="search-clear" onClick={() => setSearchQuery('')}>
+          <button type="button" className="search-clear" onClick={() => setSearchQuery('')} aria-label="Clear search">
             <X size={12} />
           </button>
         )}
@@ -78,10 +79,12 @@ export default function QuranPanel() {
 
       {/* Reciter */}
       <div className="control-row">
-        <label>Reciter</label>
+        <label htmlFor="reciter-select">Reciter</label>
         <select
+          id="reciter-select"
           value={reciterId}
           onChange={e => setReciterId(e.target.value)}
+          aria-label="Select reciter"
         >
           {availableReciters.map(r => (
             <option key={r.id} value={r.id}>{r.name}</option>

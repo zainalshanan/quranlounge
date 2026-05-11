@@ -60,7 +60,19 @@ export default function Home() {
     setIsStarted: s.setIsStarted
   })));
 
+  const initAuth = usePlayerStore(s => s.initAuth);
   const [loading, setLoading] = useState(true);
+
+  // Handle OAuth callback & initialize auth
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    if (sessionId) {
+      localStorage.setItem("ql_session", sessionId);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+    initAuth();
+  }, []);
 
   // Initial Data Fetch
   useEffect(() => {
@@ -131,6 +143,7 @@ export default function Home() {
 
   return (
     <div className={`app ${zenMode ? 'zen-active' : ''} ${performanceMode ? 'perf-mode' : ''}`}>
+      <a href="#verse-content" className="skip-link">Skip to content</a>
       {/* Background Section */}
       <Suspense fallback={<div className="background" style={{ backgroundColor: '#0a0a0a' }} />}>
         {activeBackground.type === 'video' ? (
@@ -142,6 +155,7 @@ export default function Home() {
             loop
             muted
             playsInline
+            aria-hidden="true"
           />
         ) : activeBackground.type === 'canvas' ? (
           <CanvasBackground key={activeBackground.id} id={activeBackground.id} />
@@ -176,7 +190,7 @@ export default function Home() {
 
       <main className={`main-content ${sidebarOpen && !zenMode ? 'sidebar-open' : ''} ${zenMode ? 'zen-main' : ''}`}>
         <Clock />
-        <div className="verse-area">
+        <div id="verse-content" className="verse-area">
           <VerseDisplay />
         </div>
       </main>
@@ -188,7 +202,7 @@ export default function Home() {
       </Suspense>
 
       {zenMode && (
-        <button className="zen-exit-btn" onClick={() => setZenMode(false)} title="Exit Zen Mode (Z or Esc)">
+        <button className="zen-exit-btn" onClick={() => setZenMode(false)} title="Exit Zen Mode (Z or Esc)" aria-label="Exit zen mode">
           <Eye size={18} />
         </button>
       )}

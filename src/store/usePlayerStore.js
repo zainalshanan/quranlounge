@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { getChapterVerses, getChapterAudio } from '../api/quranClient';
+import { checkSession, login as authLogin, logout as authLogout, getBookmarks, createBookmark, deleteBookmark } from '../api/userClient';
 
 // ─── Constants (Stable) ───
 export const THEMES = [
@@ -236,6 +237,150 @@ const createAudioSlice = (set, get) => ({
   },
 
   _requestAudioDestroy: null,
+
+  // Sleep Timer
+  sleepTimerMinutes: loadFromStorage('sleepTimerMinutes', 0),
+  sleepTimerEnd: null,
+  setSleepTimer: (minutes) => {
+    saveToStorage('sleepTimerMinutes', minutes);
+    const end = minutes > 0 ? Date.now() + minutes * 60 * 1000 : null;
+    set({ sleepTimerMinutes: minutes, sleepTimerEnd: end });
+  },
+});
+
+const createTodoSlice = (set, get) => ({
+  todos: loadFromStorage('todos', []),
+  addTodo: (text) => {
+    const todo = { id: Date.now().toString(), text, completed: false };
+    const next = [...get().todos, todo];
+    saveToStorage('todos', next);
+    set({ todos: next });
+  },
+  toggleTodo: (id) => {
+    const next = get().todos.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+    saveToStorage('todos', next);
+    set({ todos: next });
+  },
+  deleteTodo: (id) => {
+    const next = get().todos.filter(t => t.id !== id);
+    saveToStorage('todos', next);
+    set({ todos: next });
+  },
+});
+
+const createPomodoroSlice = (set) => ({
+  pomodoroWorkMin: loadFromStorage('pomodoroWorkMin', 25),
+  setPomodoroWorkMin: (val) => { saveToStorage('pomodoroWorkMin', val); set({ pomodoroWorkMin: val }); },
+  pomodoroBreakMin: loadFromStorage('pomodoroBreakMin', 5),
+  setPomodoroBreakMin: (val) => { saveToStorage('pomodoroBreakMin', val); set({ pomodoroBreakMin: val }); },
+  pomodoroSessions: loadFromStorage('pomodoroSessions', 4),
+  setPomodoroSessions: (val) => { saveToStorage('pomodoroSessions', val); set({ pomodoroSessions: val }); },
+});
+
+const createAuthSlice = (set) => ({
+  isAuthenticated: false,
+  userInfo: null,
+  authLoading: false,
+
+  initAuth: async () => {
+    const sessionId = localStorage.getItem("ql_session");
+    if (!sessionId) return;
+    set({ authLoading: true });
+    try {
+      const result = await checkSession();
+      if (result.authenticated) {
+        set({ isAuthenticated: true, userInfo: result.user, authLoading: false });
+        get().loadBookmarks();
+      } else {
+        localStorage.removeItem("ql_session");
+        set({ isAuthenticated: false, userInfo: null, authLoading: false });
+      }
+    } catch {
+      set({ authLoading: false });
+    }
+  },
+
+  login: () => authLogin(),
+
+  logout: async () => {
+    await authLogout();
+    set({ isAuthenticated: false, userInfo: null });
+  },
+});
+
+const createBookmarksSlice = (set, get) => ({
+  bookmarks: loadFromStorage('bookmarks', []),   // [{id, verseKey, createdAt, remote?}]
+  bookmarksLoaded: false,
+
+  // Load bookmarks from API (merges with local)
+  loadBookmarks: async () => {
+    if (!get().isAuthenticated) return;
+    try {
+      const result = await getBookmarks();
+      const remote = (result?.data || []).map(b => ({
+        id: b.id,
+        verseKey: `${b.key}:${b.verseNumber}`,
+        createdAt: b.createdAt || b.created_at,
+        remote: true,
+      }));
+      // Merge: keep local-only bookmarks, add remote ones
+      const local = get().bookmarks.filter(b => !b.remote);
+      const remoteKeys = new Set(remote.map(b => b.verseKey));
+      const merged = [...remote, ...local.filter(b => !remoteKeys.has(b.verseKey))];
+      saveToStorage('bookmarks', merged);
+      set({ bookmarks: merged, bookmarksLoaded: true });
+    } catch {
+      set({ bookmarksLoaded: true });
+    }
+  },
+
+  addBookmark: async (verseKey) => {
+    // Optimistic local add
+    const localBookmark = { id: `local_${Date.now()}`, verseKey, createdAt: new Date().toISOString(), remote: false };
+    const next = [...get().bookmarks, localBookmark];
+    saveToStorage('bookmarks', next);
+    set({ bookmarks: next });
+
+    // Sync to API if authenticated
+    if (get().isAuthenticated) {
+      try {
+        const result = await createBookmark(verseKey);
+        if (result?.data) {
+          // Replace local with remote version
+          const updated = get().bookmarks.map(b =>
+            b.id === localBookmark.id
+              ? { id: result.data.id || result.data, verseKey, createdAt: localBookmark.createdAt, remote: true }
+              : b
+          );
+          saveToStorage('bookmarks', updated);
+          set({ bookmarks: updated });
+        }
+      } catch (err) {
+        console.error("Failed to sync bookmark:", err);
+      }
+    }
+  },
+
+  removeBookmark: async (verseKey) => {
+    const bookmark = get().bookmarks.find(b => b.verseKey === verseKey);
+    // Optimistic local remove
+    const next = get().bookmarks.filter(b => b.verseKey !== verseKey);
+    saveToStorage('bookmarks', next);
+    set({ bookmarks: next });
+
+    // Sync to API if authenticated and has remote ID
+    if (get().isAuthenticated && bookmark?.remote && bookmark.id) {
+      try {
+        await deleteBookmark(bookmark.id);
+      } catch (err) {
+        console.error("Failed to remove remote bookmark:", err);
+      }
+    }
+  },
+
+  isBookmarked: (verseKey) => {
+    return get().bookmarks.some(b => b.verseKey === verseKey);
+  },
 });
 
 const createContentSlice = (set, get) => ({
@@ -350,6 +495,10 @@ export const usePlayerStore = create(subscribeWithSelector((set, get) => ({
   ...createUISlice(set, get),
   ...createSettingsSlice(set, get),
   ...createAudioSlice(set, get),
+  ...createTodoSlice(set, get),
+  ...createPomodoroSlice(set, get),
+  ...createAuthSlice(set, get),
+  ...createBookmarksSlice(set, get),
   ...createContentSlice(set, get),
 
   applyPreset: (preset) => {
