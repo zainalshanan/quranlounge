@@ -22,6 +22,12 @@
   min-width: 0;
 }
 
+.npb-surah-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .npb-surah {
   font-size: 0.78rem;
   font-weight: 600;
@@ -29,6 +35,27 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.npb-bookmark {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.npb-bookmark:hover {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.npb-bookmark.active {
+  color: var(--theme-accent, #34d399);
 }
 
 .npb-meta {

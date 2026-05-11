@@ -72,44 +72,6 @@
   letter-spacing: 0.02em;
 }
 
-/* Bookmark button */
-.verse-bookmark-btn {
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 5;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  flex-shrink: 0;
-}
-
-.verse-bookmark-btn:hover {
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  transform: scale(1.1);
-}
-
-.verse-bookmark-btn.bookmarked {
-  color: var(--theme-accent, #34d399);
-  background: rgba(52, 211, 153, 0.15);
-  border-color: rgba(52, 211, 153, 0.3);
-}
-
-.verse-bookmark-btn.bookmarked:hover {
-  background: rgba(52, 211, 153, 0.25);
-}
-
 /* QUL highlight mode badge */
 .highlight-mode-badge {
   position: absolute;

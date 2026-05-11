@@ -1,6 +1,6 @@
 import {
   Play, Pause, SkipBack, SkipForward,
-  Volume2, Repeat, Repeat1, ChevronUp, ChevronDown, Keyboard
+  Volume2, Repeat, Repeat1, ChevronUp, ChevronDown, Keyboard, Bookmark
 } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import './NowPlayingBar.css';
@@ -16,12 +16,15 @@ export default function NowPlayingBar() {
     loopMode, setLoopMode,
     showShortcuts, setShowShortcuts,
     showBottomBar, setShowBottomBar,
+    bookmarks, addBookmark, removeBookmark,
   } = usePlayerStore();
 
   const currentChapter = chapters.find(c => c.id === currentChapterId);
   const currentReciter = reciters.find(r => r.id === reciterId);
   const totalVerses = audioFiles.length;
   const verseNum = currentVerseIndex + 1;
+  const verseKey = `${currentChapterId}:${verseNum}`;
+  const isBookmarked = bookmarks.some(b => b.verseKey === verseKey);
 
   const cycleLoop = () => {
     const modes = ['none', 'surah', 'verse'];
@@ -42,7 +45,17 @@ export default function NowPlayingBar() {
     <div className="now-playing-bar">
       {/* Left: Track Info */}
       <div className="npb-info">
-        <div className="npb-surah">{currentChapter?.nameSimple || 'Loading...'}</div>
+        <div className="npb-surah-row">
+          <span className="npb-surah">{currentChapter?.nameSimple || 'Loading...'}</span>
+          <button
+            className={`npb-bookmark ${isBookmarked ? 'active' : ''}`}
+            onClick={() => isBookmarked ? removeBookmark(verseKey) : addBookmark(verseKey)}
+            aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this verse'}
+            title={isBookmarked ? 'Remove bookmark' : 'Bookmark verse'}
+          >
+            <Bookmark size={14} fill={isBookmarked ? 'currentColor' : 'none'} />
+          </button>
+        </div>
         <div className="npb-meta">
           {currentReciter?.name || 'Reciter'} · Verse {verseNum}/{totalVerses || '—'}
         </div>
