@@ -101,14 +101,14 @@
   z-index: 0;
 }
 
-/* Book + side-by-side: Arabic on right page, translation on left */
+/* Book + side-by-side: Arabic on right page, translation on left page */
 .container-book .verse-side-by-side .verse-arabic {
-  border-right: none;
-  padding-right: 2rem;
+  border-left: none;
+  padding-left: 2rem;
 }
 
 .container-book .verse-side-by-side .verse-english {
-  padding-left: 2rem;
+  padding-right: 2rem;
 }
 
 /* ─── Parchment ─── */
@@ -277,6 +277,11 @@
   50% { opacity: 0.6; }
 }
 
+/* Verse-level translation (full sentence, not word-by-word) */
+.verse-translation {
+  line-height: 1.9;
+}
+
 /* ─── Side by Side Layout ─── */
 .verse-side-by-side {
   flex-direction: row;
@@ -291,14 +296,16 @@
 
 .verse-side-by-side .verse-arabic {
   text-align: right;
-  border-right: 2px solid rgba(255, 255, 255, 0.08);
-  padding-right: 1.5rem;
+  border-left: 2px solid rgba(255, 255, 255, 0.08);
+  padding-left: 1.5rem;
+  order: 2;
 }
 
 .verse-side-by-side .verse-english {
   text-align: left;
-  padding-left: 1.5rem;
+  padding-right: 1.5rem;
   align-self: center;
+  order: 1;
 }
 
 /* ─── Word by Word Layout ─── */
@@ -381,13 +388,15 @@
   }
 
   .verse-side-by-side .verse-arabic {
-    border-right: none;
-    padding-right: 0;
+    border-left: none;
+    padding-left: 0;
     text-align: center;
+    order: 1;
   }
 
   .verse-side-by-side .verse-english {
-    padding-left: 0;
+    padding-right: 0;
+    order: 2;
   }
 
   /* Smaller word pairs on mobile */

@@ -125,6 +125,10 @@ export default function VerseDisplay() {
 
   // ─── Layout Renderers ───
 
+  // Stacked and Side-by-side use verse-level translation (full sentence),
+  // Word-by-word uses word.translation.text (individual word meanings)
+  const translationText = currentVerse.translationText || '';
+
   const renderStacked = () => (
     <div className="verse-content">
       {showArabic && (
@@ -141,25 +145,17 @@ export default function VerseDisplay() {
           ))}
         </div>
       )}
-      {showTranslation && (
-        <div className="verse-english" style={englishStyle}>
-          {currentVerse.words?.map((word, idx) => (
-            <EnglishWord
-              key={`en-${word.id}-${idx}`}
-              word={word}
-              isActive={highlightEnglish && activeWordIds.includes(word.id)}
-              highlightWordBg={highlightWordBg}
-              highlightColor={ts.highlightColor}
-              highlightGlow={ts.highlightGlow}
-            />
-          ))}
-        </div>
+      {showTranslation && translationText && (
+        <div className="verse-english verse-translation" style={englishStyle} dangerouslySetInnerHTML={{ __html: translationText }} />
       )}
     </div>
   );
 
   const renderSideBySide = () => (
     <div className="verse-content verse-side-by-side">
+      {showTranslation && translationText && (
+        <div className="verse-english verse-side verse-translation" style={englishStyle} dangerouslySetInnerHTML={{ __html: translationText }} />
+      )}
       {showArabic && (
         <div className="verse-arabic verse-side" style={arabicStyle}>
           {currentVerse.words?.map((word) => (
@@ -167,20 +163,6 @@ export default function VerseDisplay() {
               key={word.id}
               word={word}
               isActive={highlightArabic && activeWordIds.includes(word.id)}
-              highlightWordBg={highlightWordBg}
-              highlightColor={ts.highlightColor}
-              highlightGlow={ts.highlightGlow}
-            />
-          ))}
-        </div>
-      )}
-      {showTranslation && (
-        <div className="verse-english verse-side" style={englishStyle}>
-          {currentVerse.words?.map((word, idx) => (
-            <EnglishWord
-              key={`en-${word.id}-${idx}`}
-              word={word}
-              isActive={highlightEnglish && activeWordIds.includes(word.id)}
               highlightWordBg={highlightWordBg}
               highlightColor={ts.highlightColor}
               highlightGlow={ts.highlightGlow}

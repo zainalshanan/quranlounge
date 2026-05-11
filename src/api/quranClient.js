@@ -54,12 +54,14 @@ export async function getChapters() {
 
 export async function getChapterVerses(chapterId, translationId = 131) {
   try {
-    return await quranClient.verses.findByChapter(chapterId.toString(), {
-      translations: translationId.toString(), 
-      words: true,
-      perPage: 300,
-      wordFields: { textUthmani: true }
-    });
+    const res = await fetch(`/api-proxy/content/api/v4/verses/by_chapter/${chapterId}?translations=${translationId}&words=true&per_page=300&word_fields=text_uthmani`);
+    const data = await res.json();
+    return (data.verses || []).map(v => ({
+      ...v,
+      // Preserve verse-level translation (the selected translation like Khattab, Haleem, etc.)
+      translationText: v.translations?.[0]?.text || '',
+      translationResourceId: v.translations?.[0]?.resource_id || translationId,
+    }));
   } catch {
     return [];
   }
