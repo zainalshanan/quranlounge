@@ -85,9 +85,7 @@ export const PRESETS = [
   { id: 'night-study', name: 'Night Study', emoji: '🌙', description: 'Starry skies and soft crickets', ambientIds: ['crickets'], ambientVolumes: { crickets: 1.0 }, bgId: 'lofi-sky-transition', themeId: 'minimal-dark', textStyleId: 'clean-white' },
   { id: 'cozy-cafe', name: 'Cozy Cafe', emoji: '☕', description: 'Warm ambiance of a quiet café', ambientIds: ['rain'], ambientVolumes: { rain: 1.0 }, bgId: 'telephone-booth-night', themeId: 'minimal-dark', textStyleId: 'clean-white' },
   { id: 'minimalist', name: 'Minimalist', emoji: '🕌', description: 'Pure recitation, no distractions', ambientIds: [], ambientVolumes: {}, bgId: 'dark-minimal', themeId: 'minimal-dark', textStyleId: 'clean-white' },
-  { id: 'deep-focus', name: 'Deep Focus', emoji: '📖', description: 'Lofi room with gentle rain', ambientIds: ['rain'], ambientVolumes: { rain: 1.0 }, bgId: 'lofi-room', themeId: 'minimal-dark', textStyleId: 'clean-white' },
-  { id: 'stormy-night', name: 'Stormy Night', emoji: '⛈️', description: 'Thunder and wind in the wild', ambientIds: ['thunder'], ambientVolumes: { thunder: 1.0 }, bgId: 'thunderstorm-field', themeId: 'minimal-dark', textStyleId: 'clean-white' },
-  { id: 'river-meditation', name: 'River Meditation', emoji: '🏞️', description: 'Soft river sounds in the forest', ambientIds: ['stream'], ambientVolumes: { stream: 1.0 }, bgId: 'river-flowing-forest', themeId: 'minimal-dark', textStyleId: 'clean-white' }
+  { id: 'stormy-night', name: 'Stormy Night', emoji: '⛈️', description: 'Thunder and wind in the wild', ambientIds: ['thunder'], ambientVolumes: { thunder: 1.0 }, bgId: 'thunderstorm-field', themeId: 'minimal-dark', textStyleId: 'clean-white' }
 ];
 
 // ─── Storage Helpers ───
@@ -193,6 +191,13 @@ const createSettingsSlice = (set, get) => ({
   setHighlightWordBg: (val) => { saveToStorage('highlightWordBg', val); set({ highlightWordBg: val }); },
   fontSizeScale: loadFromStorage('fontSizeScale', 1.0),
   setFontSizeScale: (scale) => { saveToStorage('fontSizeScale', scale); set({ fontSizeScale: scale }); },
+
+  translationId: loadFromStorage('translationId', 131),
+  setTranslationId: (id) => {
+    saveToStorage('translationId', id);
+    set({ translationId: id, dataCache: {} }); // Clear cache since translations changed
+    get().loadChapterData(get().currentChapterId, get().reciterId);
+  },
 });
 
 const createAudioSlice = (set, get) => ({
@@ -388,6 +393,8 @@ const createContentSlice = (set, get) => ({
   setChapters: (chapters) => set({ chapters }),
   reciters: [],
   setReciters: (reciters) => set({ reciters }),
+  translations: [],
+  setTranslations: (translations) => set({ translations }),
   dataCache: {},
   verses: [],
   audioFiles: [],
@@ -401,7 +408,8 @@ const createContentSlice = (set, get) => ({
   setActiveWordIds: (ids) => set({ activeWordIds: ids }),
 
   loadChapterData: async (chapterId, reciterIdArg) => {
-    const cacheKey = `${chapterId}_${reciterIdArg}`;
+    const translationId = get().translationId;
+    const cacheKey = `${chapterId}_${reciterIdArg}_${translationId}`;
     const { dataCache, _abortController, _requestAudioDestroy } = get();
 
     if (_abortController) _abortController.abort();
@@ -436,7 +444,7 @@ const createContentSlice = (set, get) => ({
 
     try {
       const [v, a] = await Promise.all([
-        getChapterVerses(chapterId),
+        getChapterVerses(chapterId, translationId),
         getChapterAudio(chapterId, reciterIdArg)
       ]);
 

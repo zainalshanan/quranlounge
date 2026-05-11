@@ -65,6 +65,22 @@ export async function getChapterVerses(chapterId, translationId = 131) {
   }
 }
 
+export async function getTranslations() {
+  try {
+    const translations = await quranClient.resources.findAllTranslations();
+    return translations
+      .map(t => ({
+        id: t.id,
+        name: t.translatedName?.name || t.name || 'Unknown',
+        authorName: t.authorName || '',
+        languageName: t.languageName || '',
+      }))
+      .sort((a, b) => a.languageName.localeCompare(b.languageName) || a.name.localeCompare(b.name));
+  } catch {
+    return [];
+  }
+}
+
 export async function getChapterAudio(chapterId, reciterId = "qcom:7") {
   try {
     const [, id] = typeof reciterId === 'string' && reciterId.includes(':') 

@@ -1,5 +1,5 @@
 import { usePlayerStore } from '../../store/usePlayerStore';
-import { Moon, Maximize, Clock, Eye, Timer, ListTodo, ExternalLink, LogIn, LogOut, User } from 'lucide-react';
+import { Moon, Maximize, Clock, ExternalLink, LogIn, LogOut, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SettingsPanel() {
@@ -23,12 +23,6 @@ export default function SettingsPanel() {
   const setSleepTimer = usePlayerStore(s => s.setSleepTimer);
   const toggleFullscreen = usePlayerStore(s => s.toggleFullscreen);
   const isFullscreen = usePlayerStore(s => s.isFullscreen);
-  const zenMode = usePlayerStore(s => s.zenMode);
-  const toggleZenMode = usePlayerStore(s => s.toggleZenMode);
-  const floatingPomodoro = usePlayerStore(s => s.floatingPomodoro);
-  const setFloatingPomodoro = usePlayerStore(s => s.setFloatingPomodoro);
-  const floatingTodo = usePlayerStore(s => s.floatingTodo);
-  const setFloatingTodo = usePlayerStore(s => s.setFloatingTodo);
   const performanceMode = usePlayerStore(s => s.performanceMode);
   const setPerformanceMode = usePlayerStore(s => s.setPerformanceMode);
 
@@ -56,28 +50,10 @@ export default function SettingsPanel() {
         )}
       </div>
 
-      {/* Widgets */}
+      {/* General */}
       <div className="settings-section">
         <label className="section-label">General</label>
         <div className="settings-toggles">
-          <div className="setting-row">
-            <span><Timer size={14} /> Floating Timer</span>
-            <button className={`toggle-pill ${floatingPomodoro ? 'on' : ''}`} onClick={() => setFloatingPomodoro(!floatingPomodoro)} aria-label="Toggle floating timer">
-              <span className="pill-knob" />
-            </button>
-          </div>
-          <div className="setting-row">
-            <span><ListTodo size={14} /> Floating Tasks</span>
-            <button className={`toggle-pill ${floatingTodo ? 'on' : ''}`} onClick={() => setFloatingTodo(!floatingTodo)} aria-label="Toggle floating tasks">
-              <span className="pill-knob" />
-            </button>
-          </div>
-          <div className="setting-row">
-            <span><Eye size={14} /> Zen Mode</span>
-            <button className={`toggle-pill ${zenMode ? 'on' : ''}`} onClick={toggleZenMode} aria-label="Toggle zen mode">
-              <span className="pill-knob" />
-            </button>
-          </div>
           <div className="setting-row">
             <span title="Reduces CPU/GPU usage by lowering background resolution and particle counts.">
               <Moon size={14} /> Low Power Mode

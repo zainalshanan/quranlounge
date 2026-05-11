@@ -101,6 +101,8 @@ body {
   flex: 1;
   width: 100%;
   padding: 2rem;
+  min-height: 0; /* Allow flex child to shrink below content size */
+  overflow: hidden;
 }
 
 /* ─── Clock Overlay ─── */
