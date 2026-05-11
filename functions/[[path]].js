@@ -160,7 +160,7 @@ export default {
             body: "grant_type=client_credentials&scope=content"
           });
           const data = await authRes.json();
-          await env.QURAN_CACHE.put("current_token", data.access_token, { expirationTtl: 3500 });
+          await env.QURAN_CACHE.put("current_token", data.access_token, { expirationTtl: 3300 });
           return data.access_token;
         }
 

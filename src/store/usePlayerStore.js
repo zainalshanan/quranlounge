@@ -195,7 +195,7 @@ const createSettingsSlice = (set, get) => ({
   translationId: loadFromStorage('translationId', 131),
   setTranslationId: (id) => {
     saveToStorage('translationId', id);
-    set({ translationId: id, dataCache: {} }); // Clear cache since translations changed
+    set({ translationId: id }); // Cache keys include translationId, so no need to wipe
     get().loadChapterData(get().currentChapterId, get().reciterId);
   },
 });
@@ -457,6 +457,22 @@ const createContentSlice = (set, get) => ({
         _abortController: null,
         dataCache: { ...state.dataCache, [cacheKey]: { verses: v, audioFiles: a } }
       }));
+
+      // Preload next chapter in background for instant switching
+      const nextId = chapterId < 114 ? chapterId + 1 : 1;
+      const nextKey = `${nextId}_${reciterIdArg}_${translationId}`;
+      if (!get().dataCache[nextKey]) {
+        Promise.all([
+          getChapterVerses(nextId, translationId),
+          getChapterAudio(nextId, reciterIdArg)
+        ]).then(([nv, na]) => {
+          if (!get().dataCache[nextKey]) {
+            set((state) => ({
+              dataCache: { ...state.dataCache, [nextKey]: { verses: nv, audioFiles: na } }
+            }));
+          }
+        }).catch(() => {}); // Silent fail — preload is best-effort
+      }
     } catch (err) {
       if (controller.signal.aborted) return;
       set({ isLoadingChapter: false, _abortController: null });
