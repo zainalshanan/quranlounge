@@ -18,17 +18,13 @@ export default function RadioPlayer({ onExit }) {
   const videoARef = useRef(null);
   const videoBRef = useRef(null);
 
-  // Mutable state accessed inside setTimeout/event handlers without stale closures
   const activeSlotRef = useRef('a');
   const slotsRef = useRef({ a: null, b: null });
   const isBlinkingRef = useRef(false);
   const advanceFnRef = useRef(null);
 
-  // Render state
   const [activeSlot, setActiveSlot] = useState('a');
-  const [currentClip, setCurrentClip] = useState(null);
   const [isBlinking, setIsBlinking] = useState(false);
-  const [showInfo, setShowInfo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -66,8 +62,6 @@ export default function RadioPlayer({ onExit }) {
       activeSlotRef.current = nextSlot;
       slotsRef.current[currentSlot] = null;
       setActiveSlot(nextSlot);
-      setCurrentClip(nextClip);
-      setShowInfo(true);
 
       fetchRandomClip(nextClip.id)
         .then(clip => loadClipIntoSlot(currentSlot, clip))
@@ -82,22 +76,29 @@ export default function RadioPlayer({ onExit }) {
 
   advanceFnRef.current = advance;
 
-  // On mount: pause recitation + hide verse text. Restore on unmount.
+  // Pause recitation, hide verse text, close sidebar, clear backdrop. Restore on exit.
   useEffect(() => {
     const store = usePlayerStore.getState();
-    const prevPlaying = store.isPlaying;
     const prevDisplayLanguages = store.displayLanguages;
+    const prevSidebarOpen = store.sidebarOpen;
+    const prevShowTextBackdrop = store.showTextBackdrop;
 
     store.setIsPlaying(false);
-    usePlayerStore.setState({ displayLanguages: [] });
+    usePlayerStore.setState({
+      displayLanguages: [],
+      sidebarOpen: false,
+      showTextBackdrop: false,
+    });
 
     return () => {
-      usePlayerStore.setState({ displayLanguages: prevDisplayLanguages });
-      // Don't auto-resume — user can press play again
+      usePlayerStore.setState({
+        displayLanguages: prevDisplayLanguages,
+        sidebarOpen: prevSidebarOpen,
+        showTextBackdrop: prevShowTextBackdrop,
+      });
     };
   }, []);
 
-  // Mount: attach ended listeners once, fetch first two clips
   useEffect(() => {
     const videoA = videoARef.current;
     const videoB = videoBRef.current;
@@ -113,9 +114,7 @@ export default function RadioPlayer({ onExit }) {
         if (cancelled) return;
 
         loadClipIntoSlot('a', first);
-        setCurrentClip(first);
         setLoading(false);
-        setShowInfo(true);
         videoA.muted = false;
         videoB.muted = true;
         videoA.play().catch(() => {});
@@ -135,13 +134,6 @@ export default function RadioPlayer({ onExit }) {
       videoB.removeEventListener('ended', handleEnded);
     };
   }, []);
-
-  // Auto-hide info overlay after 3.5s
-  useEffect(() => {
-    if (!showInfo) return;
-    const t = setTimeout(() => setShowInfo(false), 3500);
-    return () => clearTimeout(t);
-  }, [showInfo, currentClip]);
 
   return (
     <div className="radio-overlay">
@@ -172,17 +164,8 @@ export default function RadioPlayer({ onExit }) {
             <p className="radio-error-msg">{error}</p>
           </div>
         )}
-
-        <div className="radio-gradient" />
-
-        <div className={`radio-info${showInfo && currentClip ? ' radio-info--visible' : ''}`}>
-          {currentClip?.speaker && <span className="radio-speaker">{currentClip.speaker}</span>}
-          {currentClip?.title && <p className="radio-title">{currentClip.title}</p>}
-          {currentClip?.category && <span className="radio-category">{currentClip.category}</span>}
-        </div>
       </div>
 
-      {/* Controls sit below the frame, always visible */}
       <div className="radio-controls">
         <button
           className="radio-btn radio-btn--skip"
