@@ -4,12 +4,26 @@
   inset: 0;
   z-index: 900;
   background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: radio-enter 0.5s ease forwards;
 }
 
 @keyframes radio-enter {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+/* ─── Centered iPad-sized frame ─── */
+.radio-frame {
+  position: relative;
+  width: 100%;
+  max-width: 768px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.8);
 }
 
 /* ─── Videos ─── */

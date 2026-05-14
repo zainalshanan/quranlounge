@@ -133,64 +133,66 @@ export default function RadioPlayer({ onExit }) {
 
   return (
     <div className="radio-overlay">
-      <video
-        ref={videoARef}
-        className={`radio-video ${activeSlot === 'a' ? 'radio-video--active' : ''}`}
-        playsInline
-        aria-hidden="true"
-      />
-      <video
-        ref={videoBRef}
-        className={`radio-video ${activeSlot === 'b' ? 'radio-video--active' : ''}`}
-        playsInline
-        aria-hidden="true"
-      />
+      <div className="radio-frame">
+        <video
+          ref={videoARef}
+          className={`radio-video ${activeSlot === 'a' ? 'radio-video--active' : ''}`}
+          playsInline
+          aria-hidden="true"
+        />
+        <video
+          ref={videoBRef}
+          className={`radio-video ${activeSlot === 'b' ? 'radio-video--active' : ''}`}
+          playsInline
+          aria-hidden="true"
+        />
 
-      {/* Eye-blink transition overlay */}
-      <div className={`radio-blink${isBlinking ? ' radio-blink--active' : ''}`} />
+        {/* Eye-blink transition overlay */}
+        <div className={`radio-blink${isBlinking ? ' radio-blink--active' : ''}`} />
 
-      {/* Loading / error states */}
-      {loading && (
-        <div className="radio-loading">
-          <div className="radio-spinner" />
-          <p>Tuning in…</p>
+        {/* Loading / error states */}
+        {loading && (
+          <div className="radio-loading">
+            <div className="radio-spinner" />
+            <p>Tuning in…</p>
+          </div>
+        )}
+        {error && (
+          <div className="radio-loading">
+            <p className="radio-error-msg">{error}</p>
+          </div>
+        )}
+
+        {/* Bottom gradient for text legibility */}
+        <div className="radio-gradient" />
+
+        {/* Clip info — fades in on each new clip */}
+        <div className={`radio-info${showInfo && currentClip ? ' radio-info--visible' : ''}`}>
+          <span className="radio-live">● LIVE</span>
+          {currentClip?.speaker && <span className="radio-speaker">{currentClip.speaker}</span>}
+          {currentClip?.title && <p className="radio-title">{currentClip.title}</p>}
+          {currentClip?.category && <span className="radio-category">{currentClip.category}</span>}
         </div>
-      )}
-      {error && (
-        <div className="radio-loading">
-          <p className="radio-error-msg">{error}</p>
+
+        {/* Controls */}
+        <div className="radio-controls">
+          <button
+            className="radio-btn radio-btn--skip"
+            onClick={() => advanceFnRef.current()}
+            aria-label="Next clip"
+            title="Next clip"
+          >
+            <SkipForward size={16} />
+          </button>
+          <button
+            className="radio-btn radio-btn--exit"
+            onClick={onExit}
+            aria-label="Exit radio"
+          >
+            <X size={15} />
+            <span>Exit</span>
+          </button>
         </div>
-      )}
-
-      {/* Bottom gradient for text legibility */}
-      <div className="radio-gradient" />
-
-      {/* Clip info — fades in on each new clip */}
-      <div className={`radio-info${showInfo && currentClip ? ' radio-info--visible' : ''}`}>
-        <span className="radio-live">● LIVE</span>
-        {currentClip?.speaker && <span className="radio-speaker">{currentClip.speaker}</span>}
-        {currentClip?.title && <p className="radio-title">{currentClip.title}</p>}
-        {currentClip?.category && <span className="radio-category">{currentClip.category}</span>}
-      </div>
-
-      {/* Controls */}
-      <div className="radio-controls">
-        <button
-          className="radio-btn radio-btn--skip"
-          onClick={() => advanceFnRef.current()}
-          aria-label="Next clip"
-          title="Next clip"
-        >
-          <SkipForward size={16} />
-        </button>
-        <button
-          className="radio-btn radio-btn--exit"
-          onClick={onExit}
-          aria-label="Exit radio"
-        >
-          <X size={15} />
-          <span>Exit</span>
-        </button>
       </div>
     </div>
   );
