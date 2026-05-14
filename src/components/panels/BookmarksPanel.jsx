@@ -9,7 +9,9 @@ export default function BookmarksPanel() {
   const setCurrentChapterId = usePlayerStore(s => s.setCurrentChapterId);
   const isAuthenticated = usePlayerStore(s => s.isAuthenticated);
   const login = usePlayerStore(s => s.login);
+  const floatingTafsir = usePlayerStore(s => s.floatingTafsir);
   const setFloatingTafsir = usePlayerStore(s => s.setFloatingTafsir);
+  const setActiveSidebarPanel = usePlayerStore(s => s.setActiveSidebarPanel);
   const notes = usePlayerStore(s => s.notes);
   const setNote = usePlayerStore(s => s.setNote);
 
@@ -26,7 +28,11 @@ export default function BookmarksPanel() {
 
   const handleTafsirJump = (verseKey) => {
     handleNavigate(verseKey);
-    setFloatingTafsir(true);
+    if (floatingTafsir) {
+      // float is already visible — navigation is enough, it auto-updates
+    } else {
+      setActiveSidebarPanel('tafsir');
+    }
   };
 
   const getChapterName = (verseKey) => {
