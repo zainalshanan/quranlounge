@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, SkipForward } from 'lucide-react';
+import usePlayerStore from '../store/usePlayerStore';
 import './RadioPlayer.css';
 
 async function fetchRandomClip(excludeId = null) {
@@ -84,6 +85,11 @@ export default function RadioPlayer({ onExit }) {
 
   // Keep advanceFnRef current so the event listener never goes stale
   advanceFnRef.current = advance;
+
+  // Mount: pause main recitation so both don't play at once
+  useEffect(() => {
+    usePlayerStore.getState().setIsPlaying(false);
+  }, []);
 
   // Mount: attach ended listeners once, fetch first two clips
   useEffect(() => {

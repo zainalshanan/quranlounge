@@ -2,28 +2,30 @@
 .radio-overlay {
   position: fixed;
   inset: 0;
-  z-index: 900;
-  background: #000;
+  bottom: 48px; /* sit above the NowPlayingBar */
+  z-index: 920;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: radio-enter 0.5s ease forwards;
+  animation: radio-enter 0.4s ease forwards;
 }
 
 @keyframes radio-enter {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
-/* ─── Centered iPad-sized frame ─── */
+/* ─── Phone-sized portrait frame ─── */
 .radio-frame {
   position: relative;
-  width: 100%;
-  max-width: 768px;
-  aspect-ratio: 16 / 9;
+  height: min(72vh, 560px);
+  aspect-ratio: 9 / 16;
   overflow: hidden;
-  border-radius: 12px;
-  box-shadow: 0 0 80px rgba(0, 0, 0, 0.8);
+  border-radius: 28px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(255,255,255,0.06);
 }
 
 /* ─── Videos ─── */
