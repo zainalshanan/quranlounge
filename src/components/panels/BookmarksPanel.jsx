@@ -1,6 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bookmark, Trash2, LogIn, ScrollText, PenLine } from 'lucide-react';
 import { usePlayerStore } from '../../store/usePlayerStore';
+import { getTafsirByVerse } from '../../api/quranClient';
+
+// Fetches and renders tafsir inline when a card is expanded
+function TafsirInline({ verseKey, tafsirId, tafsirs }) {
+  const [text, setText] = useState('');
+  const [loading, setLoading] = useState(true);
+  const sourceName = tafsirs.find(t => t.id === tafsirId)?.name || '';
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setText('');
+    getTafsirByVerse(tafsirId, verseKey).then(data => {
+      if (!cancelled) { setText(data?.text || ''); setLoading(false); }
+    }).catch(() => {
+      if (!cancelled) setLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [tafsirId, verseKey]);
+
+  return (
+    <div className="bm-tafsir-drop">
+      {sourceName && <span className="bm-tafsir-source">{sourceName}</span>}
+      <div className="bm-tafsir-body">
+        {loading && <span className="bm-tafsir-placeholder">Loading...</span>}
+        {!loading && text && <div dangerouslySetInnerHTML={{ __html: text }} />}
+        {!loading && !text && <span className="bm-tafsir-placeholder">No tafsir available for this verse.</span>}
+      </div>
+    </div>
+  );
+}
 
 export default function BookmarksPanel() {
   const bookmarks = usePlayerStore(s => s.bookmarks);
@@ -9,13 +40,13 @@ export default function BookmarksPanel() {
   const setCurrentChapterId = usePlayerStore(s => s.setCurrentChapterId);
   const isAuthenticated = usePlayerStore(s => s.isAuthenticated);
   const login = usePlayerStore(s => s.login);
-  const floatingTafsir = usePlayerStore(s => s.floatingTafsir);
-  const setFloatingTafsir = usePlayerStore(s => s.setFloatingTafsir);
-  const setActiveSidebarPanel = usePlayerStore(s => s.setActiveSidebarPanel);
   const notes = usePlayerStore(s => s.notes);
   const setNote = usePlayerStore(s => s.setNote);
+  const tafsirId = usePlayerStore(s => s.tafsirId);
+  const tafsirs = usePlayerStore(s => s.tafsirs);
 
   const [openNoteKey, setOpenNoteKey] = useState(null);
+  const [openTafsirKey, setOpenTafsirKey] = useState(null);
 
   const handleNavigate = (verseKey) => {
     const [chapterId, verseNum] = verseKey.split(':').map(Number);
@@ -26,23 +57,16 @@ export default function BookmarksPanel() {
     }, 500);
   };
 
-  const handleTafsirJump = (verseKey) => {
-    handleNavigate(verseKey);
-    if (floatingTafsir) {
-      // float is already visible — navigation is enough, it auto-updates
-    } else {
-      setActiveSidebarPanel('tafsir');
-    }
-  };
-
   const getChapterName = (verseKey) => {
     const chapterId = parseInt(verseKey.split(':')[0]);
     return chapters.find(c => c.id === chapterId)?.nameSimple || `Surah ${chapterId}`;
   };
 
-  const toggleNote = (verseKey) => {
+  const toggleNote = (verseKey) =>
     setOpenNoteKey(prev => prev === verseKey ? null : verseKey);
-  };
+
+  const toggleTafsir = (verseKey) =>
+    setOpenTafsirKey(prev => prev === verseKey ? null : verseKey);
 
   return (
     <div className="panel-content">
@@ -71,9 +95,13 @@ export default function BookmarksPanel() {
           {bookmarks.map(bookmark => {
             const hasNote = !!(notes[bookmark.verseKey]?.trim());
             const noteOpen = openNoteKey === bookmark.verseKey;
+            const tafsirOpen = openTafsirKey === bookmark.verseKey;
 
             return (
-              <div key={bookmark.id} className={`bookmark-card ${noteOpen ? 'note-open' : ''}`}>
+              <div
+                key={bookmark.id}
+                className={`bookmark-card ${noteOpen || tafsirOpen ? 'expanded' : ''}`}
+              >
                 {/* Header row */}
                 <div className="bookmark-card-header">
                   <button
@@ -88,10 +116,10 @@ export default function BookmarksPanel() {
 
                   <div className="bookmark-actions">
                     <button
-                      className="bm-action-btn"
-                      onClick={() => handleTafsirJump(bookmark.verseKey)}
-                      title="Open tafsir for this verse"
-                      aria-label="Open tafsir"
+                      className={`bm-action-btn ${tafsirOpen ? 'active' : ''}`}
+                      onClick={() => toggleTafsir(bookmark.verseKey)}
+                      title={tafsirOpen ? 'Close tafsir' : 'Show tafsir'}
+                      aria-label={tafsirOpen ? 'Close tafsir' : 'Show tafsir'}
                     >
                       <ScrollText size={13} />
                     </button>
@@ -113,12 +141,21 @@ export default function BookmarksPanel() {
                   </div>
                 </div>
 
-                {/* Note preview when closed */}
-                {hasNote && !noteOpen && (
+                {/* Inline tafsir dropdown */}
+                {tafsirOpen && (
+                  <TafsirInline
+                    verseKey={bookmark.verseKey}
+                    tafsirId={tafsirId}
+                    tafsirs={tafsirs}
+                  />
+                )}
+
+                {/* Note preview (collapsed) */}
+                {hasNote && !noteOpen && !tafsirOpen && (
                   <p className="bookmark-note-preview">{notes[bookmark.verseKey]}</p>
                 )}
 
-                {/* Note editor when open */}
+                {/* Note editor (expanded) */}
                 {noteOpen && (
                   <div className="bookmark-note-editor">
                     <textarea

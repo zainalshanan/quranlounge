@@ -1831,3 +1831,51 @@
   font-size: 0.65em;
   opacity: 0.6;
 }
+
+/* ─── Bookmark inline tafsir dropdown ─── */
+.bm-tafsir-drop {
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--theme-border, rgba(255,255,255,0.06));
+}
+
+.bm-tafsir-source {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--theme-accent, #34d399);
+  opacity: 0.7;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.bm-tafsir-body {
+  font-size: 0.76rem;
+  line-height: 1.7;
+  color: var(--theme-text-secondary, rgba(255,255,255,0.65));
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.bm-tafsir-body::-webkit-scrollbar {
+  width: 3px;
+}
+
+.bm-tafsir-body::-webkit-scrollbar-thumb {
+  background: var(--theme-border, rgba(255,255,255,0.15));
+  border-radius: 2px;
+}
+
+.bm-tafsir-body p {
+  margin: 0 0 0.5em 0;
+}
+
+.bm-tafsir-body p:last-child {
+  margin-bottom: 0;
+}
+
+.bm-tafsir-placeholder {
+  font-style: italic;
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
