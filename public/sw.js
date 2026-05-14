@@ -35,8 +35,12 @@ self.addEventListener('fetch', (e) => {
     url.protocol === 'ws:' || url.protocol === 'wss:'
   ) return;
 
-  // Network only for audio and API
-  if (url.pathname.startsWith('/audio-proxy') || url.pathname.startsWith('/api')) return;
+  // Network only for audio, API, and large R2 assets (videos)
+  if (
+    url.pathname.startsWith('/audio-proxy') ||
+    url.pathname.startsWith('/api') ||
+    url.pathname.startsWith('/assets/radio/')
+  ) return;
 
   e.respondWith(
     caches.match(e.request).then(cached => {
@@ -47,7 +51,7 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
         }
         return response;
-      }).catch(() => cached);
+      }).catch(() => cached || new Response('Offline', { status: 503 }));
       return cached || fetched;
     })
   );
