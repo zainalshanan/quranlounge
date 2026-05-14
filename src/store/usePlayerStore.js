@@ -204,6 +204,11 @@ const createSettingsSlice = (set, get) => ({
     set({ translationId: id }); // Cache keys include translationId, so no need to wipe
     get().loadChapterData(get().currentChapterId, get().reciterId);
   },
+
+  tafsirId: loadFromStorage('tafsirId', 169), // 169 = Ibn Kathir (English) default
+  setTafsirId: (id) => { saveToStorage('tafsirId', id); set({ tafsirId: id }); },
+  tafsirs: [],
+  setTafsirs: (tafsirs) => set({ tafsirs }),
 });
 
 const createAudioSlice = (set, get) => ({

@@ -1,7 +1,7 @@
 import { useEffect, useState, lazy, Suspense } from 'react';
 import { usePlayerStore } from './store/usePlayerStore';
 import { useShallow } from 'zustand/react/shallow';
-import { getChapters, getReciters, getTranslations } from './api/quranClient';
+import { getChapters, getReciters, getTranslations, getTafsirs } from './api/quranClient';
 import { useAudioPlayer } from './hooks/useAudioPlayer';
 import './backgrounds.css';
 import Clock from './components/Clock';
@@ -23,6 +23,7 @@ export default function Home() {
     setChapters,
     setReciters,
     setTranslations,
+    setTafsirs,
     activeBackground,
     activeTheme,
     sidebarOpen,
@@ -45,6 +46,7 @@ export default function Home() {
     setChapters: s.setChapters,
     setReciters: s.setReciters,
     setTranslations: s.setTranslations,
+    setTafsirs: s.setTafsirs,
     activeBackground: s.activeBackground,
     activeTheme: s.activeTheme,
     sidebarOpen: s.sidebarOpen,
@@ -79,10 +81,11 @@ export default function Home() {
   // Initial Data Fetch
   useEffect(() => {
     async function init() {
-      const [chaps, recs, trans] = await Promise.all([getChapters(), getReciters(), getTranslations()]);
+      const [chaps, recs, trans, tafs] = await Promise.all([getChapters(), getReciters(), getTranslations(), getTafsirs()]);
       setChapters(chaps);
       setReciters(recs);
       setTranslations(trans);
+      setTafsirs(tafs);
       await loadChapterData(currentChapterId, reciterId);
       setLoading(false);
     }

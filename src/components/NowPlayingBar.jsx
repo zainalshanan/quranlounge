@@ -1,6 +1,7 @@
 import {
   Play, Pause, SkipBack, SkipForward,
-  Volume2, Repeat, Repeat1, ChevronUp, ChevronDown, Keyboard, Bookmark
+  Volume2, Repeat, Repeat1, ChevronUp, ChevronDown, Keyboard, Bookmark,
+  LogIn, User
 } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import './NowPlayingBar.css';
@@ -17,6 +18,8 @@ export default function NowPlayingBar() {
     showShortcuts, setShowShortcuts,
     showBottomBar, setShowBottomBar,
     bookmarks, addBookmark, removeBookmark,
+    isAuthenticated, userInfo, login,
+    setActiveSidebarPanel,
   } = usePlayerStore();
 
   const currentChapter = chapters.find(c => c.id === currentChapterId);
@@ -118,6 +121,14 @@ export default function NowPlayingBar() {
           aria-label={showShortcuts ? 'Hide shortcuts' : 'Show shortcuts'}
         >
           <Keyboard size={14} />
+        </button>
+        <button
+          className={`npb-btn npb-user-btn ${isAuthenticated ? 'authenticated' : ''}`}
+          onClick={() => isAuthenticated ? setActiveSidebarPanel('settings') : login()}
+          title={isAuthenticated ? (userInfo?.name || userInfo?.email || 'Account') : 'Sign in with Quran.com'}
+          aria-label={isAuthenticated ? 'Account' : 'Sign in'}
+        >
+          {isAuthenticated ? <User size={14} /> : <LogIn size={14} />}
         </button>
         <button
           className="npb-btn minimize-btn"

@@ -188,6 +188,20 @@
   opacity: 1;
 }
 
+.npb-user-btn {
+  opacity: 0.45;
+  transition: all 0.2s;
+}
+
+.npb-user-btn:hover {
+  opacity: 1;
+}
+
+.npb-user-btn.authenticated {
+  opacity: 1;
+  color: var(--theme-accent, #34d399);
+}
+
 /* Minimized state */
 .npb-minimized {
   position: fixed;

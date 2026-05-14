@@ -70,6 +70,31 @@ export async function getChapterVerses(chapterId, translationId = 131) {
   }
 }
 
+export async function getTafsirs() {
+  try {
+    const data = await apiFetch('/tafsirs');
+    return (data.tafsirs || [])
+      .map(t => ({
+        id: t.id,
+        name: t.translated_name?.name || t.name || 'Unknown',
+        authorName: t.author_name || '',
+        languageName: t.language_name || '',
+      }))
+      .sort((a, b) => a.languageName.localeCompare(b.languageName) || a.name.localeCompare(b.name));
+  } catch {
+    return [];
+  }
+}
+
+export async function getTafsirByVerse(tafsirId, verseKey) {
+  try {
+    const data = await apiFetch(`/tafsirs/${tafsirId}/by_ayah/${verseKey}`);
+    return data.tafsir || null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getTranslations() {
   try {
     const data = await apiFetch('/resources/translations');

@@ -1649,3 +1649,60 @@
 .rail-login {
   color: var(--theme-accent, #34d399) !important;
 }
+
+/* ─── Tafsir Panel ─── */
+.tafsir-verse-ref {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--theme-border, rgba(255,255,255,0.07));
+}
+
+.tafsir-ref-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--theme-text, #fff);
+}
+
+.tafsir-ref-key {
+  font-size: 0.7rem;
+  color: var(--theme-accent, #34d399);
+  background: var(--theme-active, rgba(52,211,153,0.12));
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tafsir-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--theme-text-secondary, rgba(255,255,255,0.45));
+  padding: 12px 0;
+}
+
+.tafsir-error {
+  color: rgba(248, 113, 113, 0.8);
+}
+
+.tafsir-text {
+  font-size: 0.8rem;
+  line-height: 1.75;
+  color: var(--theme-text-secondary, rgba(255,255,255,0.75));
+  padding-bottom: 1rem;
+}
+
+.tafsir-text p {
+  margin: 0 0 0.75em 0;
+}
+
+.tafsir-text p:last-child {
+  margin-bottom: 0;
+}
+
+.tafsir-text sup {
+  font-size: 0.65em;
+  opacity: 0.6;
+}
