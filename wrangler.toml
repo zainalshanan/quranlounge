@@ -19,3 +19,8 @@ id = "d601ae5713af43deab1dae4885cbcdc3"
 [[r2_buckets]]
 binding = "MY_BUCKET"
 bucket_name = "quran-lounge"
+
+[[d1_databases]]
+binding = "RADIO_DB"
+database_name = "quranloungedb"
+database_id = "2fd52684-c179-48b8-af19-3d0a2fb01853"

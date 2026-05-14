@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const TermsOfService = () => {
@@ -49,7 +48,7 @@ const TermsOfService = () => {
 
       <h2>5. Disclaimer of Warranties</h2>
       <p>
-        QuranLounge is provided on an "as-is" and "as-available" basis. While we strive for 100% accuracy by relying on verified databases, we do not warrant that the service will be entirely uninterrupted or error-free.
+        QuranLounge is provided on an &quot;as-is&quot; and &quot;as-available&quot; basis. While we strive for 100% accuracy by relying on verified databases, we do not warrant that the service will be entirely uninterrupted or error-free.
       </p>
 
       <h2>6. Changes to Terms</h2>

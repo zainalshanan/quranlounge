@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BACKGROUNDS, TEXT_STYLE_PRESETS, usePlayerStore } from '../../store/usePlayerStore';
-import { Palette, Info } from 'lucide-react';
+import { Palette } from 'lucide-react';
 
 const CSS_BG_PREVIEWS = {
   aurora: 'linear-gradient(135deg, #0d1f2d, #1a0a2e, #0a2a2a)',
@@ -48,9 +48,6 @@ export default function StylePanel() {
   const setVerseLayout = usePlayerStore(s => s.setVerseLayout);
   const containerStyle = usePlayerStore(s => s.containerStyle);
   const setContainerStyle = usePlayerStore(s => s.setContainerStyle);
-  const reciterId = usePlayerStore(s => s.reciterId);
-  const isQUL = typeof reciterId === 'string' && reciterId.startsWith('local:');
-
   const [showCustom, setShowCustom] = useState(false);
   const ts = customTextStyle || activeTextStyle;
 
@@ -99,12 +96,6 @@ export default function StylePanel() {
             <button className={highlightEnglish ? 'active' : ''} onClick={() => setHighlightEnglish(!highlightEnglish)}>Translation {highlightEnglish ? '✦' : '○'}</button>
           </div>
         </div>
-        {isQUL && (
-          <div className="highlight-info-note">
-            <Info size={12} />
-            <span>Word-level highlighting is not available with QUL reciters.</span>
-          </div>
-        )}
         <div className="control-row">
           <label>Word BG</label>
           <button className={`toggle-btn ${highlightWordBg ? 'active' : ''}`} onClick={() => setHighlightWordBg(!highlightWordBg)}>{highlightWordBg ? 'On' : 'Off'}</button>

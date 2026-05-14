@@ -75,7 +75,7 @@ export default {
         audioResponse.headers.set("Cache-Control", "public, max-age=31536000, immutable");
         audioResponse.headers.set("Access-Control-Allow-Origin", "*");
         return audioResponse;
-      } catch (e) {
+      } catch {
         return new Response("Audio Proxy Error", { status: 502 });
       }
     }
@@ -113,8 +113,16 @@ export default {
             return new Response(null, { status: 412, headers });
           }
 
+          // Support range requests so video seeking works
+          headers.set("Accept-Ranges", "bytes");
+          if (object.range) {
+            const { offset, length } = object.range;
+            headers.set("Content-Range", `bytes ${offset}-${offset + length - 1}/${object.size}`);
+          }
+
+          const isRangeRequest = request.headers.has("Range") || request.headers.has("range");
           return new Response(object.body, {
-            status: request.method === "GET" ? 200 : 204,
+            status: isRangeRequest && object.range ? 206 : (request.method === "GET" ? 200 : 204),
             headers,
           });
         }
@@ -134,7 +142,7 @@ export default {
             return new Response("Deleted!");
           }
         }
-      } catch (e) {
+      } catch {
         return new Response(`R2 Error`, { status: 500 });
       }
     }
@@ -197,7 +205,7 @@ export default {
           ctx.waitUntil(cache.put(request, finalResponse.clone()));
         }
         return finalResponse;
-      } catch (e) {
+      } catch {
         return new Response("API Proxy Error", { status: 502 });
       }
     }
@@ -426,7 +434,31 @@ export default {
     }
 
     // ──────────────────────────────────────────
-    // 9. Default: Static Assets & SPA Routing
+    // 9. Radio API
+    // ──────────────────────────────────────────
+    if (url.pathname === "/api/radio/random" && request.method === "GET") {
+      if (!env.RADIO_DB) {
+        return jsonResponse({ error: "Radio not configured" }, 503, origin);
+      }
+      try {
+        const excludeId = parseInt(url.searchParams.get("exclude")) || null;
+        const stmt = excludeId
+          ? env.RADIO_DB.prepare(
+              "SELECT id, r2_key, title, speaker, category, duration_seconds FROM clips WHERE active=1 AND id != ? ORDER BY RANDOM() LIMIT 1"
+            ).bind(excludeId)
+          : env.RADIO_DB.prepare(
+              "SELECT id, r2_key, title, speaker, category, duration_seconds FROM clips WHERE active=1 ORDER BY RANDOM() LIMIT 1"
+            );
+        const clip = await stmt.first();
+        if (!clip) return jsonResponse({ error: "No clips available" }, 404, origin);
+        return jsonResponse(clip, 200, origin);
+      } catch {
+        return jsonResponse({ error: "Database error" }, 500, origin);
+      }
+    }
+
+    // ──────────────────────────────────────────
+    // 10. Default: Static Assets & SPA Routing
     // ──────────────────────────────────────────
     try {
       let response = await env.ASSETS.fetch(request);
@@ -437,7 +469,7 @@ export default {
       }
 
       return response;
-    } catch (e) {
+    } catch {
       return new Response("Asset Fetch Error", { status: 500 });
     }
   }

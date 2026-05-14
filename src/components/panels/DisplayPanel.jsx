@@ -1,5 +1,4 @@
 import { usePlayerStore } from '../../store/usePlayerStore';
-import { Info } from 'lucide-react';
 
 export default function DisplayPanel() {
   const displayLanguages = usePlayerStore(s => s.displayLanguages);
@@ -12,8 +11,6 @@ export default function DisplayPanel() {
   const setHighlightWordBg = usePlayerStore(s => s.setHighlightWordBg);
   const showTextBackdrop = usePlayerStore(s => s.showTextBackdrop);
   const setShowTextBackdrop = usePlayerStore(s => s.setShowTextBackdrop);
-  const reciterId = usePlayerStore(s => s.reciterId);
-  const isQUL = typeof reciterId === 'string' && reciterId.startsWith('local:');
   const translations = usePlayerStore(s => s.translations);
   const translationId = usePlayerStore(s => s.translationId);
   const setTranslationId = usePlayerStore(s => s.setTranslationId);
@@ -97,14 +94,6 @@ export default function DisplayPanel() {
           </button>
         </div>
       </div>
-
-      {/* QUL highlighting note */}
-      {isQUL && (
-        <div className="highlight-info-note">
-          <Info size={12} />
-          <span>Word-level highlighting is not available with QUL reciters. The entire verse highlights at once.</span>
-        </div>
-      )}
 
       {/* Word Background */}
       <div className="control-row">

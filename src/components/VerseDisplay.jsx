@@ -15,18 +15,6 @@ const QuranWord = memo(({ word, isActive, highlightWordBg, highlightColor, highl
   );
 });
 
-const EnglishWord = memo(({ word, isActive, highlightWordBg, highlightColor, highlightGlow }) => {
-  if (!word.translation?.text) return null;
-  return (
-    <span
-      className={`en-word ${isActive ? 'active-word' : ''} ${isActive && highlightWordBg ? 'active-word-bg' : ''}`}
-      style={isActive ? { color: highlightColor, textShadow: highlightGlow } : undefined}
-      dangerouslySetInnerHTML={{ __html: word.translation.text }}
-    />
-  );
-});
-
-
 export default function VerseDisplay() {
   const {
     verses,
@@ -34,7 +22,6 @@ export default function VerseDisplay() {
     activeWordIds,
     displayLanguages,
     highlightArabic,
-    highlightEnglish,
     highlightWordBg,
     fontSizeScale,
     isLoadingChapter,
@@ -48,7 +35,6 @@ export default function VerseDisplay() {
     activeWordIds: s.activeWordIds,
     displayLanguages: s.displayLanguages,
     highlightArabic: s.highlightArabic,
-    highlightEnglish: s.highlightEnglish,
     highlightWordBg: s.highlightWordBg,
     fontSizeScale: s.fontSizeScale,
     isLoadingChapter: s.isLoadingChapter,

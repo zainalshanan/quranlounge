@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 const PrivacyPolicy = () => {
@@ -15,15 +14,15 @@ const PrivacyPolicy = () => {
 
       <h2>1. Introduction</h2>
       <p>
-        Welcome to QuranLounge. This application provides a tranquil, synchronized audio-visual experience for studying and listening to the Quran. To power this experience, QuranLounge utilizes the Quran Foundation (QF) APIs and aligns with the Quran.com brand's commitment to preserving the integrity of digital Islamic resources.
+        Welcome to QuranLounge. This application provides a tranquil, synchronized audio-visual experience for studying and listening to the Quran. To power this experience, QuranLounge utilizes the Quran Foundation (QF) APIs and aligns with the Quran.com brand&apos;s commitment to preserving the integrity of digital Islamic resources.
       </p>
 
       <h2>2. Data Collection & API Usage</h2>
       <p>
-        QuranLounge is a "read-only" application. Public Quran text, audio, and associated metadata are retrieved via the Quran Foundation APIs without collecting personal user data from the source. We do not require users to create accounts, log in, or submit personal information to use the core features of this site.
+        QuranLounge is a &quot;read-only&quot; application. Public Quran text, audio, and associated metadata are retrieved via the Quran Foundation APIs without collecting personal user data from the source. We do not require users to create accounts, log in, or submit personal information to use the core features of this site.
       </p>
 
-      <h2>3. Our "Never" Pledges</h2>
+      <h2>3. Our &quot;Never&quot; Pledges</h2>
       <p>We respect your privacy and the sacred nature of the content we provide. QuranLounge strictly pledges that we will never:</p>
       <ul>
         <li>Use user data to build advertising profiles.</li>
@@ -33,7 +32,7 @@ const PrivacyPolicy = () => {
 
       <h2>4. Sensitive Data Protection</h2>
       <p>
-        We acknowledge that data related to a user's religious beliefs or practices is considered sensitive personal data requiring special legal protection. While QuranLounge does not currently collect user accounts or usage profiles, should this change in the future, we pledge to obtain explicit opt-in consent before collecting any religious or sensitive personal data.
+        We acknowledge that data related to a user&apos;s religious beliefs or practices is considered sensitive personal data requiring special legal protection. While QuranLounge does not currently collect user accounts or usage profiles, should this change in the future, we pledge to obtain explicit opt-in consent before collecting any religious or sensitive personal data.
       </p>
 
       <h2>5. Security Commitments</h2>

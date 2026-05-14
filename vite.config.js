@@ -9,8 +9,8 @@ export default defineConfig({
       output: {
         manualChunks: {
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-utils': ['zustand', 'howler', 'clsx', 'tailwind-merge'],
-          'vendor-ui': ['framer-motion', 'lucide-react', 'react-icons'],
+          'vendor-utils': ['zustand', 'howler'],
+          'vendor-ui': ['framer-motion', 'lucide-react'],
         }
       }
     },

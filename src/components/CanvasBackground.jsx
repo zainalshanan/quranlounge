@@ -147,7 +147,7 @@ void main() {
   gl_FragColor = vec4(col + 0.04 * n3, 1.0);
 }`;
 
-function initNebula(canvas, lowPower) {
+function initNebula(canvas) {
   const gl = canvas.getContext('webgl');
   if (!gl) return () => {};
   const compile = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };

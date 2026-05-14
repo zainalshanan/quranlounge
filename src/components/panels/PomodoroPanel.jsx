@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Play, Pause, RotateCcw, ChevronUp, ChevronDown } from 'lucide-react';
 import { usePlayerStore } from '../../store/usePlayerStore';
 

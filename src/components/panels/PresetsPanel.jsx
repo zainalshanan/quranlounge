@@ -1,4 +1,3 @@
-import React from 'react';
 import { PRESETS, usePlayerStore } from '../../store/usePlayerStore';
 
 export default function PresetsPanel() {

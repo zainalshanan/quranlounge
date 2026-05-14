@@ -2,7 +2,7 @@
 import { memo } from 'react';
 import {
   Layers, BookOpen, Bookmark, Headphones, Settings, X, Menu, Eye,
-  Timer, ListTodo, Paintbrush, LogIn, User, ScrollText
+  Timer, ListTodo, Paintbrush, LogIn, User, ScrollText, Radio
 } from 'lucide-react';
 import { usePlayerStore } from '../store/usePlayerStore';
 import PresetsPanel from './panels/PresetsPanel';
@@ -46,6 +46,8 @@ function Sidebar() {
   const setFloatingTodo = usePlayerStore(s => s.setFloatingTodo);
   const isAuthenticated = usePlayerStore(s => s.isAuthenticated);
   const login = usePlayerStore(s => s.login);
+  const radioMode = usePlayerStore(s => s.radioMode);
+  const toggleRadioMode = usePlayerStore(s => s.toggleRadioMode);
 
   const ActivePanel = PANELS[activeSidebarPanel] || PresetsPanel;
 
@@ -124,6 +126,15 @@ function Sidebar() {
               aria-label="Toggle floating tasks"
             >
               <ListTodo size={16} />
+            </button>
+            <button
+              className={`rail-btn ${radioMode ? 'active' : ''}`}
+              onClick={toggleRadioMode}
+              title="Radio Mode"
+              aria-label="Toggle radio mode"
+            >
+              <Radio size={18} />
+              <span className="rail-label">Radio</span>
             </button>
             <button
               className="rail-btn zen-btn"

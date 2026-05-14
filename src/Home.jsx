@@ -15,6 +15,7 @@ const NowPlayingBar = lazy(() => import('./components/NowPlayingBar'));
 const FloatingPomodoro = lazy(() => import('./components/FloatingPomodoro'));
 const FloatingTodo = lazy(() => import('./components/FloatingTodo'));
 const FloatingTafsir = lazy(() => import('./components/FloatingTafsir'));
+const RadioPlayer = lazy(() => import('./components/RadioPlayer'));
 
 export default function Home() {
   const {
@@ -40,7 +41,9 @@ export default function Home() {
     floatingTafsir,
     performanceMode,
     isStarted,
-    setIsStarted
+    setIsStarted,
+    radioMode,
+    setRadioMode,
   } = usePlayerStore(useShallow(s => ({
     currentChapterId: s.currentChapterId,
     reciterId: s.reciterId,
@@ -64,7 +67,9 @@ export default function Home() {
     floatingTafsir: s.floatingTafsir,
     performanceMode: s.performanceMode,
     isStarted: s.isStarted,
-    setIsStarted: s.setIsStarted
+    setIsStarted: s.setIsStarted,
+    radioMode: s.radioMode,
+    setRadioMode: s.setRadioMode,
   })));
 
   const initAuth = usePlayerStore(s => s.initAuth);
@@ -218,6 +223,12 @@ export default function Home() {
         <button className="zen-exit-btn" onClick={() => setZenMode(false)} title="Exit Zen Mode (Z or Esc)" aria-label="Exit zen mode">
           <Eye size={18} />
         </button>
+      )}
+
+      {radioMode && (
+        <Suspense fallback={null}>
+          <RadioPlayer onExit={() => setRadioMode(false)} />
+        </Suspense>
       )}
     </div>
   );

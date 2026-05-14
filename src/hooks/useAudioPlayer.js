@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Howl, Howler } from 'howler';
+import { Howl } from 'howler';
 import { usePlayerStore, AMBIENT_TRACKS } from '../store/usePlayerStore';
 
 /**
@@ -13,7 +13,6 @@ export function useAudioPlayer(isStarted) {
   const recitationHowlRef = useRef(null);
   const ambientHowlsRef = useRef({});
   const syncIntervalRef = useRef(null);
-  const sleepTimerRef = useRef(null);
   const isPlayingRef = useRef(false);
   const currentVerseIndexRef = useRef(0);
   const generationRef = useRef(0);
@@ -27,8 +26,6 @@ export function useAudioPlayer(isStarted) {
   const masterVolume = usePlayerStore(s => s.masterVolume);
   const recitationVolume = usePlayerStore(s => s.recitationVolume);
   const activeAmbientTracks = usePlayerStore(s => s.activeAmbientTracks);
-  const sleepTimerEnd = usePlayerStore(s => s.sleepTimerEnd);
-  const isLoadingChapter = usePlayerStore(s => s.isLoadingChapter);
 
   useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
   useEffect(() => { currentVerseIndexRef.current = currentVerseIndex; }, [currentVerseIndex]);
@@ -49,7 +46,7 @@ export function useAudioPlayer(isStarted) {
         recitationHowlRef.current.off();
         recitationHowlRef.current.stop();
         recitationHowlRef.current.unload();
-      } catch { }
+      } catch { /* howl may already be destroyed */ }
       recitationHowlRef.current = null;
     }
   }, []);
@@ -143,7 +140,7 @@ export function useAudioPlayer(isStarted) {
           const { isLoadingChapter: stillLoading } = usePlayerStore.getState();
           if (isPlayingRef.current && recitationHowlRef.current === howl && !stillLoading) howl.play();
         },
-        onloaderror: (_id, err) => {
+        onloaderror: () => {
           if (generationRef.current !== thisGeneration) return;
           if (!isRetry) {
             destroyRecitation();

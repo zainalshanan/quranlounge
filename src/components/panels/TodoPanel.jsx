@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Plus, Trash2, CheckCircle, Circle } from 'lucide-react';
 import { usePlayerStore } from '../../store/usePlayerStore';
 

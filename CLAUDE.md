@@ -15,7 +15,7 @@ npm run test         # Vitest (all tests)
 
 To run a single test file:
 ```bash
-npx vitest run src/api/qul.test.js
+npx vitest run src/api/quranClient.test.js   # API client unit tests
 ```
 
 **Important:** Always use port **8788** (Wrangler) for local dev, not 5173, so the API and audio proxies work.
@@ -27,18 +27,14 @@ QuranLounge is a lofi-aesthetic Quran recitation web app. It runs as a React SPA
 ### Data Flow
 
 1. **App init** (`Home.jsx`): Fetches chapters and reciters in parallel, then loads the current chapter's verse and audio data via `usePlayerStore.loadChapterData()`.
-2. **API layer** (`src/api/quranClient.js`): Merges two reciter sources:
-   - **`qcom` (Quran.com)**: Uses `@quranjs/api` routed through `/api-proxy`. Returns per-verse `.mp3` files with word-level segment timestamps.
-   - **`local` (QUL)**: Reads `public/data/QUL/<folder>/surah.json` and `segments.json`. Returns a single surah-level `.mp3` with verse-level timestamps.
+2. **API layer** (`src/api/quranClient.js`): Direct `fetch` calls through `/api-proxy` (no third-party SDK). Returns per-verse `.mp3` files with word-level segment timestamps from the Quran Foundation API.
 3. **Store** (`src/store/usePlayerStore.js`): Single Zustand store for all state — playback, UI, themes, ambient mixer, todos, pomodoro config. Persists most state to `localStorage` with `ql_` prefix. Constants (THEMES, BACKGROUNDS, AMBIENT_TRACKS, PRESETS, TEXT_STYLE_PRESETS) are also exported from this file.
-4. **Audio engine** (`src/hooks/useAudioPlayer.js`): Uses Howler.js. Two playback modes:
-   - **qcom**: Verse-by-verse `.mp3` files; `onend` triggers `advanceVerse()`.
-   - **local/QUL**: Single surah `.mp3` audio sprite; a `requestAnimationFrame` loop reads `howl.seek()` to drive `currentVerseIndex` and word highlighting (audio clock drives React state, not the reverse).
+4. **Audio engine** (`src/hooks/useAudioPlayer.js`): Uses Howler.js. Loads verse-by-verse `.mp3` files from the Quran Foundation CDN; `onend` triggers `advanceVerse()`.
 5. **Cloudflare Worker** (`functions/[[path]].js`): Proxies `/api-proxy/*` and `/audio-proxy/*`. Handles OAuth2 with Quran Foundation, caches tokens in Cloudflare KV (`QURAN_CACHE`), and caches API/audio responses at the edge.
 
 ### Reciter ID Format
 
-Reciters use prefixed IDs: `qcom:<number>` for Quran.com reciters, `local:<slug>` for QUL reciters. Never use bare numeric IDs — always use the prefixed format.
+Reciters use prefixed IDs: `qcom:<number>` (e.g. `qcom:7`). Never use bare numeric IDs — always use the prefixed format.
 
 ### Key Patterns
 
@@ -55,7 +51,7 @@ The sidebar (`src/components/Sidebar.jsx`) renders different panels based on `ac
 
 - **New background**: Add to `BACKGROUNDS` array in `usePlayerStore.js`.
 - **New ambient sound**: Add to `AMBIENT_TRACKS` array in `usePlayerStore.js`.
-- **New QUL reciter**: Add entry to `src/api/localReciters.json`; place audio data in `public/data/QUL/<folder>/`.
+- **Radio clips**: Upload `.mp4` files to R2 under `radio/<filename>`, then insert a row into the `clips` D1 table (see `migrations/0001_create_radio_clips.sql`).
 
 ## Environment Variables
 

@@ -90,11 +90,11 @@ export const PRESETS = [
 
 // ─── Storage Helpers ───
 const loadFromStorage = (k, f) => { try { const v = localStorage.getItem(`ql_${k}`); return v !== null ? JSON.parse(v) : f; } catch { return f; } };
-const saveToStorage = (k, v) => { try { localStorage.setItem(`ql_${k}`, JSON.stringify(v)); } catch { } };
+const saveToStorage = (k, v) => { try { localStorage.setItem(`ql_${k}`, JSON.stringify(v)); } catch { /* storage unavailable */ } };
 
 // ─── Slices ───
 
-const createUISlice = (set, get) => ({
+const createUISlice = (set) => ({
   sidebarOpen: false,
   setSidebarOpen: (val) => set({ sidebarOpen: val }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -103,6 +103,10 @@ const createUISlice = (set, get) => ({
 
   isStarted: false,
   setIsStarted: (val) => set({ isStarted: val }),
+
+  radioMode: false,
+  setRadioMode: (val) => set({ radioMode: val }),
+  toggleRadioMode: () => set((s) => ({ radioMode: !s.radioMode })),
 
   zenMode: false,
   setZenMode: (val) => set({ zenMode: val }),
@@ -293,7 +297,7 @@ const createPomodoroSlice = (set) => ({
   setPomodoroSessions: (val) => { saveToStorage('pomodoroSessions', val); set({ pomodoroSessions: val }); },
 });
 
-const createAuthSlice = (set) => ({
+const createAuthSlice = (set, get) => ({
   isAuthenticated: false,
   userInfo: null,
   authLoading: false,
@@ -497,7 +501,7 @@ const createContentSlice = (set, get) => ({
           }
         }).catch(() => {}); // Silent fail — preload is best-effort
       }
-    } catch (err) {
+    } catch {
       if (controller.signal.aborted) return;
       set({ isLoadingChapter: false, _abortController: null });
     }
@@ -509,7 +513,7 @@ const createContentSlice = (set, get) => ({
   },
 
   advanceVerse: () => {
-    const { currentVerseIndex, audioFiles, currentChapterId, loopMode, reciters, reciterId } = get();
+    const { currentVerseIndex, audioFiles, currentChapterId, loopMode } = get();
     if (loopMode === 'verse') return;
     if (currentVerseIndex < audioFiles.length - 1) {
       set({ currentVerseIndex: currentVerseIndex + 1 });
@@ -525,7 +529,7 @@ const createContentSlice = (set, get) => ({
   },
   
   skipNext: () => {
-    const { chapters, currentChapterId, loopMode } = get();
+    const { currentChapterId, loopMode } = get();
     if (loopMode === 'surah') { set({ currentVerseIndex: 0 }); return; }
     const nextId = currentChapterId < 114 ? currentChapterId + 1 : 1;
     get().setCurrentChapterId(nextId);

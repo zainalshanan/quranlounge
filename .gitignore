@@ -34,3 +34,6 @@ build
 # R2 Assets
 public/assets
 public/data
+
+# Claude Code settings (local IDE config, not for public repos)
+.claude/
