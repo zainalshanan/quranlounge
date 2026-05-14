@@ -398,6 +398,18 @@ const createBookmarksSlice = (set, get) => ({
   isBookmarked: (verseKey) => {
     return get().bookmarks.some(b => b.verseKey === verseKey);
   },
+
+  notes: loadFromStorage('notes', {}),
+  setNote: (verseKey, text) => {
+    const next = { ...get().notes };
+    if (text.trim()) {
+      next[verseKey] = text;
+    } else {
+      delete next[verseKey];
+    }
+    saveToStorage('notes', next);
+    set({ notes: next });
+  },
 });
 
 const createContentSlice = (set, get) => ({

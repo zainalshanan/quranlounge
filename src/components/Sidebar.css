@@ -1545,19 +1545,32 @@
 .bookmarks-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
-.bookmark-item {
+/* ─── Bookmark Card ─── */
+.bookmark-card {
+  background: var(--theme-surface, rgba(255,255,255,0.04));
+  border: 1px solid var(--theme-border, rgba(255,255,255,0.07));
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.bookmark-card:hover {
+  border-color: rgba(255,255,255,0.12);
+}
+
+.bookmark-card.note-open {
+  border-color: var(--theme-accent, #34d399);
+  border-opacity: 0.3;
+}
+
+.bookmark-card-header {
   display: flex;
   align-items: center;
   gap: 4px;
-  border-radius: 10px;
-  transition: background 0.15s;
-}
-
-.bookmark-item:hover {
-  background: var(--theme-hover, rgba(255,255,255,0.06));
+  padding: 4px 6px 4px 12px;
 }
 
 .bookmark-navigate {
@@ -1565,61 +1578,125 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   background: none;
   border: none;
   color: var(--theme-text, #fff);
-  padding: 10px 12px;
+  padding: 8px 0;
   cursor: pointer;
   text-align: left;
-  border-radius: 10px;
+  min-width: 0;
 }
 
-.bookmark-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.bookmark-navigate:hover .bookmark-surah {
+  color: var(--theme-accent, #34d399);
 }
 
 .bookmark-surah {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
-}
-
-.bookmark-verse {
-  font-size: 0.7rem;
-  color: var(--theme-text-secondary, rgba(255,255,255,0.5));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.15s;
 }
 
 .bookmark-key {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--theme-accent, #34d399);
   font-weight: 500;
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: 6px;
-  background: rgba(52, 211, 153, 0.08);
+  background: var(--theme-active, rgba(52,211,153,0.1));
+  flex-shrink: 0;
 }
 
-.bookmark-delete {
+/* ─── Bookmark Action Buttons ─── */
+.bookmark-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.bm-action-btn {
   background: none;
   border: none;
-  color: var(--theme-text-secondary);
+  color: var(--theme-text-secondary, rgba(255,255,255,0.35));
   cursor: pointer;
-  padding: 6px;
+  padding: 5px;
   border-radius: 6px;
-  opacity: 0;
-  transition: all 0.2s;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.18s;
 }
 
-.bookmark-item:hover .bookmark-delete {
+.bm-action-btn:hover {
+  color: var(--theme-text, #fff);
+  background: var(--theme-hover, rgba(255,255,255,0.06));
+}
+
+.bm-action-btn.has-note {
+  color: var(--theme-accent, #34d399);
+  opacity: 0.7;
+}
+
+.bm-action-btn.active {
+  color: var(--theme-accent, #34d399);
+  background: var(--theme-active, rgba(52,211,153,0.1));
   opacity: 1;
 }
 
-.bookmark-delete:hover {
+.bm-action-btn.bm-delete:hover {
   color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239,68,68,0.1);
 }
 
+/* ─── Note preview (collapsed) ─── */
+.bookmark-note-preview {
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--theme-text-secondary, rgba(255,255,255,0.45));
+  padding: 0 12px 10px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
+}
+
+/* ─── Note editor (expanded) ─── */
+.bookmark-note-editor {
+  padding: 0 10px 10px;
+}
+
+.bookmark-note-textarea {
+  width: 100%;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid var(--theme-border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  color: var(--theme-text, #fff);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  padding: 8px 10px;
+  resize: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.bookmark-note-textarea:focus {
+  outline: none;
+  border-color: var(--theme-accent, #34d399);
+}
+
+.bookmark-note-textarea::placeholder {
+  color: var(--theme-text-secondary);
+  opacity: 0.5;
+}
+
+/* ─── Sign-in hint ─── */
 .bookmark-signin-hint {
   margin-bottom: 12px;
 }
