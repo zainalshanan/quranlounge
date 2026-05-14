@@ -234,6 +234,69 @@ body {
   min-width: 220px;
 }
 
+.floating-tafsir {
+  top: 80px;
+  left: 80px;
+  width: 290px;
+}
+
+.fw-tafsir-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.fw-tafsir-key {
+  font-size: 0.62rem;
+  color: var(--theme-accent, #34d399);
+  background: var(--theme-active, rgba(52,211,153,0.12));
+  padding: 1px 6px;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.fw-tafsir-source-select {
+  width: 100%;
+  background: var(--theme-surface, rgba(255,255,255,0.05));
+  border: 1px solid var(--theme-border, rgba(255,255,255,0.08));
+  border-radius: 8px;
+  color: var(--theme-text-secondary, rgba(255,255,255,0.5));
+  font-size: 0.68rem;
+  padding: 4px 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.fw-tafsir-source-name {
+  font-size: 0.65rem;
+  color: var(--theme-text-secondary);
+  opacity: 0.6;
+  margin-bottom: 6px;
+}
+
+.fw-tafsir-body {
+  max-height: 260px;
+  overflow-y: auto;
+  font-size: 0.73rem;
+  line-height: 1.65;
+  color: var(--theme-text-secondary, rgba(255,255,255,0.7));
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+
+.fw-tafsir-body::-webkit-scrollbar { width: 3px; }
+.fw-tafsir-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+.fw-tafsir-body p { margin: 0 0 0.5em; }
+.fw-tafsir-body p:last-child { margin: 0; }
+
+.fw-tafsir-placeholder {
+  opacity: 0.4;
+  font-style: italic;
+  font-size: 0.72rem;
+}
+
 .fw-header {
   display: flex;
   align-items: center;

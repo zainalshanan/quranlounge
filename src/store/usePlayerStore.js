@@ -124,6 +124,8 @@ const createUISlice = (set, get) => ({
   setFloatingPomodoro: (val) => { saveToStorage('floatingPomodoro', val); set({ floatingPomodoro: val }); },
   floatingTodo: loadFromStorage('floatingTodo', false),
   setFloatingTodo: (val) => { saveToStorage('floatingTodo', val); set({ floatingTodo: val }); },
+  floatingTafsir: loadFromStorage('floatingTafsir', false),
+  setFloatingTafsir: (val) => { saveToStorage('floatingTafsir', val); set({ floatingTafsir: val }); },
   widgetStyle: loadFromStorage('widgetStyle', 'glass'),
   setWidgetStyle: (style) => { saveToStorage('widgetStyle', style); set({ widgetStyle: style }); },
   showShortcuts: loadFromStorage('showShortcuts', true),
@@ -349,6 +351,7 @@ const createBookmarksSlice = (set, get) => ({
   },
 
   addBookmark: async (verseKey) => {
+    if (get().bookmarks.some(b => b.verseKey === verseKey)) return; // guard duplicates
     // Optimistic local add
     const localBookmark = { id: `local_${Date.now()}`, verseKey, createdAt: new Date().toISOString(), remote: false };
     const next = [...get().bookmarks, localBookmark];

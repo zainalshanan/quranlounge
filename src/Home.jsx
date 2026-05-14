@@ -14,6 +14,7 @@ const CanvasBackground = lazy(() => import('./components/CanvasBackground'));
 const NowPlayingBar = lazy(() => import('./components/NowPlayingBar'));
 const FloatingPomodoro = lazy(() => import('./components/FloatingPomodoro'));
 const FloatingTodo = lazy(() => import('./components/FloatingTodo'));
+const FloatingTafsir = lazy(() => import('./components/FloatingTafsir'));
 
 export default function Home() {
   const {
@@ -36,6 +37,7 @@ export default function Home() {
     toggleFullscreen,
     floatingPomodoro,
     floatingTodo,
+    floatingTafsir,
     performanceMode,
     isStarted,
     setIsStarted
@@ -59,6 +61,7 @@ export default function Home() {
     toggleFullscreen: s.toggleFullscreen,
     floatingPomodoro: s.floatingPomodoro,
     floatingTodo: s.floatingTodo,
+    floatingTafsir: s.floatingTafsir,
     performanceMode: s.performanceMode,
     isStarted: s.isStarted,
     setIsStarted: s.setIsStarted
@@ -207,6 +210,7 @@ export default function Home() {
       <Suspense fallback={null}>
         {floatingPomodoro && <FloatingPomodoro />}
         {floatingTodo && <FloatingTodo />}
+        {floatingTafsir && <FloatingTafsir />}
         {!zenMode && <NowPlayingBar />}
       </Suspense>
 

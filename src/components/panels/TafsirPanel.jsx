@@ -9,6 +9,8 @@ export default function TafsirPanel() {
   const currentChapterId = usePlayerStore(s => s.currentChapterId);
   const currentVerseIndex = usePlayerStore(s => s.currentVerseIndex);
   const chapters = usePlayerStore(s => s.chapters);
+  const floatingTafsir = usePlayerStore(s => s.floatingTafsir);
+  const setFloatingTafsir = usePlayerStore(s => s.setFloatingTafsir);
 
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -41,6 +43,20 @@ export default function TafsirPanel() {
   return (
     <div className="panel-content">
       <h3 className="panel-title">Tafsir</h3>
+
+      {/* Float on screen toggle */}
+      <div className="tafsir-float-row">
+        <span>Show on screen</span>
+        <button
+          className={`slide-toggle ${floatingTafsir ? 'active' : ''}`}
+          onClick={() => setFloatingTafsir(!floatingTafsir)}
+          aria-label={floatingTafsir ? 'Hide floating tafsir' : 'Show tafsir on screen'}
+          role="switch"
+          aria-checked={floatingTafsir}
+        >
+          <span className="slide-toggle-knob" />
+        </button>
+      </div>
 
       {tafsirs.length > 0 && (
         <div className="control-row">

@@ -18,9 +18,9 @@ export default function QuranPanel() {
   const translations = usePlayerStore(s => s.translations);
   const translationId = usePlayerStore(s => s.translationId);
   const setTranslationId = usePlayerStore(s => s.setTranslationId);
+  const bookmarks = usePlayerStore(s => s.bookmarks);
   const addBookmark = usePlayerStore(s => s.addBookmark);
   const removeBookmark = usePlayerStore(s => s.removeBookmark);
-  const isBookmarked = usePlayerStore(s => s.isBookmarked);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showReciterMgmt, setShowReciterMgmt] = useState(false);
@@ -28,7 +28,7 @@ export default function QuranPanel() {
   const activeItemRef = useRef(null);
 
   const currentVerseKey = `${currentChapterId}:${currentVerseIndex + 1}`;
-  const currentVerseBookmarked = isBookmarked(currentVerseKey);
+  const currentVerseBookmarked = bookmarks.some(b => b.verseKey === currentVerseKey);
 
   useEffect(() => {
     if (activeItemRef.current && !searchQuery) {
