@@ -52,12 +52,11 @@ export default function RadioPlayer({ onExit }) {
     const nextSlot = currentSlot === 'a' ? 'b' : 'a';
     const nextClip = slotsRef.current[nextSlot];
 
-    if (!nextClip) return; // preload not ready yet
+    if (!nextClip) return;
 
     isBlinkingRef.current = true;
     setIsBlinking(true);
 
-    // At 350ms — screen is fully black — swap
     setTimeout(() => {
       const prevEl = getVideoEl(currentSlot);
       const nextEl = getVideoEl(nextSlot);
@@ -70,25 +69,32 @@ export default function RadioPlayer({ onExit }) {
       setCurrentClip(nextClip);
       setShowInfo(true);
 
-      // Preload the next-next clip into the now-idle slot
       fetchRandomClip(nextClip.id)
         .then(clip => loadClipIntoSlot(currentSlot, clip))
         .catch(() => {});
     }, 350);
 
-    // At 700ms — blink done
     setTimeout(() => {
       setIsBlinking(false);
       isBlinkingRef.current = false;
     }, 700);
   }
 
-  // Keep advanceFnRef current so the event listener never goes stale
   advanceFnRef.current = advance;
 
-  // Mount: pause main recitation so both don't play at once
+  // On mount: pause recitation + hide verse text. Restore on unmount.
   useEffect(() => {
-    usePlayerStore.getState().setIsPlaying(false);
+    const store = usePlayerStore.getState();
+    const prevPlaying = store.isPlaying;
+    const prevDisplayLanguages = store.displayLanguages;
+
+    store.setIsPlaying(false);
+    usePlayerStore.setState({ displayLanguages: [] });
+
+    return () => {
+      usePlayerStore.setState({ displayLanguages: prevDisplayLanguages });
+      // Don't auto-resume — user can press play again
+    };
   }, []);
 
   // Mount: attach ended listeners once, fetch first two clips
@@ -153,10 +159,8 @@ export default function RadioPlayer({ onExit }) {
           aria-hidden="true"
         />
 
-        {/* Eye-blink transition overlay */}
         <div className={`radio-blink${isBlinking ? ' radio-blink--active' : ''}`} />
 
-        {/* Loading / error states */}
         {loading && (
           <div className="radio-loading">
             <div className="radio-spinner" />
@@ -169,36 +173,34 @@ export default function RadioPlayer({ onExit }) {
           </div>
         )}
 
-        {/* Bottom gradient for text legibility */}
         <div className="radio-gradient" />
 
-        {/* Clip info — fades in on each new clip */}
         <div className={`radio-info${showInfo && currentClip ? ' radio-info--visible' : ''}`}>
           <span className="radio-live">● LIVE</span>
           {currentClip?.speaker && <span className="radio-speaker">{currentClip.speaker}</span>}
           {currentClip?.title && <p className="radio-title">{currentClip.title}</p>}
           {currentClip?.category && <span className="radio-category">{currentClip.category}</span>}
         </div>
+      </div>
 
-        {/* Controls */}
-        <div className="radio-controls">
-          <button
-            className="radio-btn radio-btn--skip"
-            onClick={() => advanceFnRef.current()}
-            aria-label="Next clip"
-            title="Next clip"
-          >
-            <SkipForward size={16} />
-          </button>
-          <button
-            className="radio-btn radio-btn--exit"
-            onClick={onExit}
-            aria-label="Exit radio"
-          >
-            <X size={15} />
-            <span>Exit</span>
-          </button>
-        </div>
+      {/* Controls sit below the frame, always visible */}
+      <div className="radio-controls">
+        <button
+          className="radio-btn radio-btn--skip"
+          onClick={() => advanceFnRef.current()}
+          aria-label="Next clip"
+          title="Next clip"
+        >
+          <SkipForward size={16} />
+        </button>
+        <button
+          className="radio-btn radio-btn--exit"
+          onClick={onExit}
+          aria-label="Exit radio"
+        >
+          <X size={15} />
+          <span>Exit</span>
+        </button>
       </div>
     </div>
   );
