@@ -185,8 +185,6 @@ const createSettingsSlice = (set, get) => ({
   setHighlightArabic: (val) => { saveToStorage('highlightArabic', val); set({ highlightArabic: val }); },
   highlightEnglish: loadFromStorage('highlightEnglish', false),
   setHighlightEnglish: (val) => { saveToStorage('highlightEnglish', val); set({ highlightEnglish: val }); },
-  showTextBackdrop: loadFromStorage('showTextBackdrop', true),
-  setShowTextBackdrop: (val) => { saveToStorage('showTextBackdrop', val); set({ showTextBackdrop: val }); },
   highlightWordBg: loadFromStorage('highlightWordBg', true),
   setHighlightWordBg: (val) => { saveToStorage('highlightWordBg', val); set({ highlightWordBg: val }); },
   fontSizeScale: loadFromStorage('fontSizeScale', 1.0),

@@ -42,8 +42,6 @@ export default function StylePanel() {
   const setHighlightEnglish = usePlayerStore(s => s.setHighlightEnglish);
   const highlightWordBg = usePlayerStore(s => s.highlightWordBg);
   const setHighlightWordBg = usePlayerStore(s => s.setHighlightWordBg);
-  const showTextBackdrop = usePlayerStore(s => s.showTextBackdrop);
-  const setShowTextBackdrop = usePlayerStore(s => s.setShowTextBackdrop);
   const fontSizeScale = usePlayerStore(s => s.fontSizeScale);
   const setFontSizeScale = usePlayerStore(s => s.setFontSizeScale);
   const verseLayout = usePlayerStore(s => s.verseLayout);
@@ -68,7 +66,6 @@ export default function StylePanel() {
           <div className="segmented-control">
             <button className={verseLayout === 'stacked' ? 'active' : ''} onClick={() => setVerseLayout('stacked')}>Stacked</button>
             <button className={verseLayout === 'sideBySide' ? 'active' : ''} onClick={() => setVerseLayout('sideBySide')}>Side by Side</button>
-            <button className={verseLayout === 'wordByWord' ? 'active' : ''} onClick={() => setVerseLayout('wordByWord')}>Word by Word</button>
           </div>
         </div>
         <div className="control-row">
@@ -111,10 +108,6 @@ export default function StylePanel() {
         <div className="control-row">
           <label>Word BG</label>
           <button className={`toggle-btn ${highlightWordBg ? 'active' : ''}`} onClick={() => setHighlightWordBg(!highlightWordBg)}>{highlightWordBg ? 'On' : 'Off'}</button>
-        </div>
-        <div className="control-row">
-          <label>Backdrop</label>
-          <button className={`toggle-btn ${showTextBackdrop ? 'active' : ''}`} onClick={() => setShowTextBackdrop(!showTextBackdrop)}>{showTextBackdrop ? 'Blur On' : 'Blur Off'}</button>
         </div>
       </div>
 

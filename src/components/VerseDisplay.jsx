@@ -26,20 +26,6 @@ const EnglishWord = memo(({ word, isActive, highlightWordBg, highlightColor, hig
   );
 });
 
-// Word-by-word: Arabic word with its translation directly below
-const WordPair = memo(({ word, isActive, highlightWordBg, highlightColor, highlightGlow, englishColor }) => {
-  return (
-    <span
-      className={`word-pair ${isActive ? 'active-word' : ''} ${isActive && highlightWordBg ? 'active-word-bg' : ''}`}
-      style={isActive ? { color: highlightColor, textShadow: highlightGlow } : undefined}
-    >
-      <span className="wp-arabic" dangerouslySetInnerHTML={{ __html: word.textUthmani || word.text }} />
-      {word.translation?.text && (
-        <span className="wp-translation" style={{ color: isActive ? highlightColor : englishColor }} dangerouslySetInnerHTML={{ __html: word.translation.text }} />
-      )}
-    </span>
-  );
-});
 
 export default function VerseDisplay() {
   const {
@@ -50,7 +36,6 @@ export default function VerseDisplay() {
     highlightArabic,
     highlightEnglish,
     highlightWordBg,
-    showTextBackdrop,
     fontSizeScale,
     isLoadingChapter,
     activeTextStyle,
@@ -65,7 +50,6 @@ export default function VerseDisplay() {
     highlightArabic: s.highlightArabic,
     highlightEnglish: s.highlightEnglish,
     highlightWordBg: s.highlightWordBg,
-    showTextBackdrop: s.showTextBackdrop,
     fontSizeScale: s.fontSizeScale,
     isLoadingChapter: s.isLoadingChapter,
     activeTextStyle: s.activeTextStyle,
@@ -114,7 +98,7 @@ export default function VerseDisplay() {
 
   if (isLoadingChapter || !currentVerse) {
     return (
-      <div className={`verse-display-container container-${containerStyle} loading-state ${showTextBackdrop ? '' : 'no-backdrop'}`}>
+      <div className={`verse-display-container container-${containerStyle} loading-state`}>
         <div className="verse-loader">
           <div className="verse-loader-spinner" />
           <span className="verse-loader-text">{isLoadingChapter ? 'Loading surah...' : 'Preparing verses...'}</span>
@@ -173,30 +157,13 @@ export default function VerseDisplay() {
     </div>
   );
 
-  const renderWordByWord = () => (
-    <div className="verse-content verse-word-by-word" style={{ direction: 'rtl' }}>
-      {currentVerse.words?.map((word, idx) => (
-        <WordPair
-          key={`wbw-${word.id}-${idx}`}
-          word={word}
-          isActive={(highlightArabic || highlightEnglish) && activeWordIds.includes(word.id)}
-          highlightWordBg={highlightWordBg}
-          highlightColor={ts.highlightColor}
-          highlightGlow={ts.highlightGlow}
-          englishColor={ts.englishColor}
-        />
-      ))}
-    </div>
-  );
-
   const layoutRenderer = {
     stacked: renderStacked,
     sideBySide: renderSideBySide,
-    wordByWord: renderWordByWord,
   };
 
   return (
-    <div ref={containerRef} className={`verse-display-container container-${containerStyle} ${showTextBackdrop ? '' : 'no-backdrop'}`} role="region" aria-label="Quran verse display" aria-live="polite">
+    <div ref={containerRef} className={`verse-display-container container-${containerStyle}`} role="region" aria-label="Quran verse display" aria-live="polite">
       <AnimatePresence mode="wait">
         <motion.div
           key={`${currentVerseIndex}-${verseLayout}`}
