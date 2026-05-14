@@ -19,16 +19,29 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
+/* ─── Resizable wrapper ─── */
+.radio-frame-wrapper {
+  position: relative;
+  width: min(68vw, 780px);
+  aspect-ratio: 16 / 9; /* overridden by inline style once user resizes */
+  pointer-events: auto;
+}
+
 /* ─── Landscape video frame ─── */
 .radio-frame {
   position: relative;
-  width: min(68vw, 780px);
-  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border-radius: 16px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.07);
-  pointer-events: auto;
-  background: #000;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.07);
+  background: transparent;
+  transition: box-shadow 0.2s;
+}
+
+/* Highlight border on hover to indicate resizability */
+.radio-frame-wrapper:hover .radio-frame {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1.5px rgba(255, 255, 255, 0.18);
 }
 
 /* ─── Videos ─── */
@@ -68,6 +81,50 @@
   60%  { transform: scaleY(1); }
   100% { transform: scaleY(0); }
 }
+
+/* ─── Resize handles ─── */
+.radio-resize-handle {
+  position: absolute;
+  z-index: 20;
+}
+
+/* Edge handles — thin transparent hit zones */
+.radio-resize-handle--n  { top: -5px;    left: 14px;   right: 14px;  height: 10px; cursor: n-resize; }
+.radio-resize-handle--s  { bottom: -5px; left: 14px;   right: 14px;  height: 10px; cursor: s-resize; }
+.radio-resize-handle--e  { right: -5px;  top: 14px;    bottom: 14px; width: 10px;  cursor: e-resize; }
+.radio-resize-handle--w  { left: -5px;   top: 14px;    bottom: 14px; width: 10px;  cursor: w-resize; }
+
+/* Corner handles */
+.radio-resize-handle--ne { top: -5px;    right: -5px;  width: 18px; height: 18px; cursor: ne-resize; }
+.radio-resize-handle--nw { top: -5px;    left: -5px;   width: 18px; height: 18px; cursor: nw-resize; }
+.radio-resize-handle--se { bottom: -5px; right: -5px;  width: 18px; height: 18px; cursor: se-resize; }
+.radio-resize-handle--sw { bottom: -5px; left: -5px;   width: 18px; height: 18px; cursor: sw-resize; }
+
+/* Corner grip markers — L-shaped brackets, visible on wrapper hover */
+.radio-frame-wrapper:hover .radio-resize-handle--se::after,
+.radio-frame-wrapper:hover .radio-resize-handle--sw::after,
+.radio-frame-wrapper:hover .radio-resize-handle--ne::after,
+.radio-frame-wrapper:hover .radio-resize-handle--nw::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border-color: rgba(255, 255, 255, 0.45);
+  border-style: solid;
+  transition: border-color 0.2s;
+}
+
+.radio-frame-wrapper:hover .radio-resize-handle--se:hover::after,
+.radio-frame-wrapper:hover .radio-resize-handle--sw:hover::after,
+.radio-frame-wrapper:hover .radio-resize-handle--ne:hover::after,
+.radio-frame-wrapper:hover .radio-resize-handle--nw:hover::after {
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+.radio-frame-wrapper:hover .radio-resize-handle--se::after { bottom: 3px; right: 3px; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+.radio-frame-wrapper:hover .radio-resize-handle--sw::after { bottom: 3px; left:  3px; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
+.radio-frame-wrapper:hover .radio-resize-handle--ne::after { top:    3px; right: 3px; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
+.radio-frame-wrapper:hover .radio-resize-handle--nw::after { top:    3px; left:  3px; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
 
 /* ─── Controls — sit below the frame ─── */
 .radio-controls {
