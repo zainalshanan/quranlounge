@@ -1,11 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { usePlayerStore } from '../../store/usePlayerStore';
-import { Search, Repeat, Repeat1, Eye, EyeOff, X, Check } from 'lucide-react';
+import { Search, Repeat, Repeat1, Eye, EyeOff, X, Bookmark, BookmarkCheck } from 'lucide-react';
 
 export default function QuranPanel() {
   const chapters = usePlayerStore(s => s.chapters);
   const currentChapterId = usePlayerStore(s => s.currentChapterId);
   const setCurrentChapterId = usePlayerStore(s => s.setCurrentChapterId);
+  const currentVerseIndex = usePlayerStore(s => s.currentVerseIndex);
+  const verses = usePlayerStore(s => s.verses);
   const reciters = usePlayerStore(s => s.reciters);
   const reciterId = usePlayerStore(s => s.reciterId);
   const setReciterId = usePlayerStore(s => s.setReciterId);
@@ -16,10 +18,23 @@ export default function QuranPanel() {
   const translations = usePlayerStore(s => s.translations);
   const translationId = usePlayerStore(s => s.translationId);
   const setTranslationId = usePlayerStore(s => s.setTranslationId);
+  const addBookmark = usePlayerStore(s => s.addBookmark);
+  const removeBookmark = usePlayerStore(s => s.removeBookmark);
+  const isBookmarked = usePlayerStore(s => s.isBookmarked);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showReciterMgmt, setShowReciterMgmt] = useState(false);
   const searchRef = useRef(null);
+  const activeItemRef = useRef(null);
+
+  const currentVerseKey = `${currentChapterId}:${currentVerseIndex + 1}`;
+  const currentVerseBookmarked = isBookmarked(currentVerseKey);
+
+  useEffect(() => {
+    if (activeItemRef.current && !searchQuery) {
+      activeItemRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [currentChapterId, searchQuery]);
 
   const filteredChapters = searchQuery
     ? chapters.filter(c =>
@@ -35,6 +50,15 @@ export default function QuranPanel() {
     setCurrentChapterId(chapterId);
     setSearchQuery('');
     if (searchRef.current) searchRef.current.blur();
+  };
+
+  const handleBookmarkToggle = (e) => {
+    e.stopPropagation();
+    if (currentVerseBookmarked) {
+      removeBookmark(currentVerseKey);
+    } else {
+      addBookmark(currentVerseKey);
+    }
   };
 
   return (
@@ -64,19 +88,40 @@ export default function QuranPanel() {
         {filteredChapters.length === 0 ? (
           <div className="surah-empty">No surahs found</div>
         ) : (
-          filteredChapters.map(c => (
-            <button
-              key={c.id}
-              type="button"
-              className={`surah-item ${c.id === currentChapterId ? 'active' : ''}`}
-              onClick={() => handleSurahClick(c.id)}
-            >
-              <span className="surah-number">{c.id}</span>
-              <span className="surah-name">{c.nameSimple}</span>
-              <span className="surah-arabic">{c.nameArabic}</span>
-              {c.id === currentChapterId && <Check size={14} className="surah-check" />}
-            </button>
-          ))
+          filteredChapters.map(c => {
+            const isActive = c.id === currentChapterId;
+            return (
+              <div
+                key={c.id}
+                ref={isActive ? activeItemRef : null}
+                className="surah-row"
+              >
+                <button
+                  type="button"
+                  className={`surah-item ${isActive ? 'active' : ''}`}
+                  onClick={() => handleSurahClick(c.id)}
+                >
+                  <span className="surah-number">{c.id}</span>
+                  <span className="surah-name">{c.nameSimple}</span>
+                  <span className="surah-arabic">{c.nameArabic}</span>
+                  {isActive && verses.length > 0 && (
+                    <span className="surah-verse-badge">{currentVerseIndex + 1}/{verses.length}</span>
+                  )}
+                </button>
+                {isActive && (
+                  <button
+                    type="button"
+                    className={`surah-bookmark-btn ${currentVerseBookmarked ? 'bookmarked' : ''}`}
+                    onClick={handleBookmarkToggle}
+                    aria-label={currentVerseBookmarked ? 'Remove bookmark' : 'Bookmark current verse'}
+                    title={currentVerseBookmarked ? `Remove bookmark ${currentVerseKey}` : `Bookmark verse ${currentVerseIndex + 1}`}
+                  >
+                    {currentVerseBookmarked ? <BookmarkCheck size={13} /> : <Bookmark size={13} />}
+                  </button>
+                )}
+              </div>
+            );
+          })
         )}
       </div>
 
