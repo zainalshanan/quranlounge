@@ -94,7 +94,7 @@ export default {
           });
 
           if (object === null) {
-            return await env.ASSETS.fetch(request);
+            try { return await env.ASSETS.fetch(request); } catch { return new Response("Not found", { status: 404 }); }
           }
 
           const headers = new Headers();
@@ -113,16 +113,17 @@ export default {
             return new Response(null, { status: 412, headers });
           }
 
-          // Support range requests so video seeking works
           headers.set("Accept-Ranges", "bytes");
-          if (object.range) {
-            const { offset, length } = object.range;
-            headers.set("Content-Range", `bytes ${offset}-${offset + length - 1}/${object.size}`);
+
+          // Only set Content-Range when R2 returned a valid, fully-defined range
+          const r = object.range;
+          const hasRange = r && typeof r.offset === "number" && typeof r.length === "number";
+          if (hasRange) {
+            headers.set("Content-Range", `bytes ${r.offset}-${r.offset + r.length - 1}/${object.size}`);
           }
 
-          const isRangeRequest = request.headers.has("Range") || request.headers.has("range");
           return new Response(object.body, {
-            status: isRangeRequest && object.range ? 206 : (request.method === "GET" ? 200 : 204),
+            status: hasRange ? 206 : (request.method === "GET" ? 200 : 204),
             headers,
           });
         }
