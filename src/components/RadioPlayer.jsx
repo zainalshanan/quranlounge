@@ -176,7 +176,6 @@ export default function RadioPlayer({ onExit }) {
         <div className="radio-gradient" />
 
         <div className={`radio-info${showInfo && currentClip ? ' radio-info--visible' : ''}`}>
-          <span className="radio-live">● LIVE</span>
           {currentClip?.speaker && <span className="radio-speaker">{currentClip.speaker}</span>}
           {currentClip?.title && <p className="radio-title">{currentClip.title}</p>}
           {currentClip?.category && <span className="radio-category">{currentClip.category}</span>}

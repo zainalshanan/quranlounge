@@ -4,7 +4,7 @@
   inset: 0;
   bottom: 48px; /* above NowPlayingBar */
   z-index: 920;
-  background: rgba(0, 0, 0, 0.35); /* subtle dim — site background shows through */
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -97,14 +97,6 @@
 .radio-info--visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-.radio-live {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: #ef4444;
-  text-transform: uppercase;
 }
 
 .radio-speaker {
