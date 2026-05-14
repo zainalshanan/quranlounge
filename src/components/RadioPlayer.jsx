@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { X, SkipForward } from 'lucide-react';
-import usePlayerStore from '../store/usePlayerStore';
+import { usePlayerStore } from '../store/usePlayerStore';
 import './RadioPlayer.css';
 
 async function fetchRandomClip(excludeId = null) {
