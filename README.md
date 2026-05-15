@@ -3,7 +3,7 @@
 
 A lofi-aesthetic Quran recitation web app. Listen to high-quality recitations with synchronized Arabic/English text, ambient soundscapes, and beautiful animated backgrounds.
 
-**Live:** [quranlounge.pages.dev](https://quranlounge.pages.dev)
+**Live:** [quranlounge.com](https://quranlounge.com)
 
 ## Features
 
