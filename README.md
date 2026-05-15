@@ -7,7 +7,7 @@ A lofi-aesthetic Quran recitation web app. Listen to high-quality recitations wi
 
 ## Features
 
-- **100+ Reciters** — sourced from the Quran Foundation API
+- **World renowned Reciters** — sourced from the Quran Foundation API
 - **Word-level highlighting** — synchronized with audio for Quran.com reciters
 - **Ambient mixer** — rain, campfire, ocean waves, and more, with per-track volume
 - **Themes & backgrounds** — video loops, CSS animations, canvas generative art
@@ -15,7 +15,6 @@ A lofi-aesthetic Quran recitation web app. Listen to high-quality recitations wi
 - **Tafsir viewer** — inline and floating tafsir for any verse
 - **Pomodoro timer & todo list** — built-in focus tools
 - **Zen mode** — distraction-free fullscreen recitation
-- **PWA-ready** — installable on mobile
 
 ## Tech Stack
 
